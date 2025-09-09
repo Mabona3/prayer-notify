@@ -1,0 +1,8 @@
+[Unit]
+Description=prayer-notify
+After=graphical.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/prayer-notify
+Environment="HOME=%h"
