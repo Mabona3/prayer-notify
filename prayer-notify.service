@@ -6,3 +6,6 @@ After=graphical.target
 Type=simple
 ExecStart=/usr/local/bin/prayer-notify
 Environment="HOME=%h"
+
+[Install]
+WantedBy=default.target

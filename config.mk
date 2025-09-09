@@ -15,6 +15,6 @@ OBJ_FILES=$(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
 SERVICE=$(NAME).service
-SERVICEDIR=/usr/lib/systemd/system
+SERVICEDIR=$(HOME)/.config/systemd/user
 
 .PHONY: all clean run debug test install uninstall release
