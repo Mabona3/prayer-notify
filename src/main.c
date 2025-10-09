@@ -21,7 +21,6 @@
 #include "config.h"
 #include "jsonReader.h"
 #include "notify.h"
-#include "prayerTimes.h"
 #include "timeHandle.h"
 
 #include <signal.h>
@@ -77,6 +76,10 @@ int main(int argc, char *argv[]) {
     TimeID timeid;
     for (timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount && running;
          timeid++) {
+      if (timeid ==
+          TIMEID_Sunset) // Just don't want to hear the timeid of sunset as it
+                         // substitute the maghrib timeid.
+        continue;
       int dtime = timelocal(&times_dates[timeid]) - prayerTimes->time;
       if (dtime > 0) {
         while (dtime > 0 && running) {

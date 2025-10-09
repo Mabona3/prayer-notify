@@ -3,9 +3,6 @@
 
 #include "prayerTimes.h"
 
-#define PROG_NAME_FRIENDLY "prayer-notify"
-#define PROG_NAME "prayer-notify"
-
 /*
  * parse the args to the main file.
  * @params prayerTimes PrayerTimes*

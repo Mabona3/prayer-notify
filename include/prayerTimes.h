@@ -116,10 +116,10 @@ typedef enum {
 } CalculationMethod;
 
 typedef enum {
-  ADJUSTING_None,       // No adjustment
   ADJUSTING_MidNight,   // middle of night
   ADJUSTING_OneSeventh, // 1/7th of night
   ADJUSTING_AngleBased, // angle/60th of night
+  ADJUSTING_None,       // No adjustment
                         //
   ADJUSTINGMETHOD_COUNT,
 } AdjustingMethod;
@@ -150,7 +150,7 @@ typedef struct {
 
 /*            Enum To String Section                */
 
-static const char *Juristic[JURISTICMETHOD_COUNT] = {"Shafi", "Hanafi"};
+static const char *Juristic[JURISTICMETHOD_COUNT] = {"Shafii", "Hanafi"};
 
 static const char *TimeName[TIMEID_TimesCount] = {
     "Fajr", "Sunrise", "Dhuhr", "Asr", "Sunset", "Maghrib", "Isha",
@@ -159,8 +159,8 @@ static const char *TimeName[TIMEID_TimesCount] = {
 static const char *Calculation[CALCULATIONMETHOD_COUNT] = {
     "Jafari",  // Ithna Ashari
     "Karachi", // University of Islamic Sciences, Karachi
-    "ISNA",    // Islamic Society of North America (ISNA)
-    "MWL",     // Muslim World League (MWL)
+    "Isna",    // Islamic Society of North America (ISNA)
+    "Mwl",     // Muslim World League (MWL)
     "Makkah",  // Umm al-Qura, Makkah
     "Egypt",   // Egyptian General Authority of Survey
     "Custom"   // Custom Setting
@@ -168,10 +168,10 @@ static const char *Calculation[CALCULATIONMETHOD_COUNT] = {
 
 // Used for converting from enum to string
 static const char *Adjusting[] = {
-    "None",       // No adjustment
     "MidNight",   // middle of night
     "OneSeventh", // 1/7th of night
     "AngleBased", // angle/60th of night
+    "None",       // No adjustment
 };
 
 /* --------------------- User Interface ----------------------- */
