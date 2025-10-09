@@ -12,6 +12,15 @@
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #define BUFFER_SIZE 512
 
+#define JSON_RETURN_WITH_ERROR(jsondata, json, file, name, error_string)       \
+  do {                                                                         \
+    fprintf(stderr, error_string, name);                                       \
+    cJSON_Delete(json);                                                        \
+    fclose(file);                                                              \
+    free(jsondata);                                                            \
+    return NULL;                                                               \
+  } while (0)
+
 // PrayerTimes is the struct type that holds the data
 // json is the cJson struct that holds the json file data
 // location is the field in PrayerTimes struct that should be retrieved
@@ -23,6 +32,9 @@
     tmp = cJSON_GetObjectItemCaseSensitive(json, name);                        \
     if (cJSON_IsNumber(tmp)) {                                                 \
       jsondata->location = tmp->valuedouble;                                   \
+    } else {                                                                   \
+      JSON_RETURN_WITH_ERROR(jsondata, json, file, name,                       \
+                             "Error parsing config file '%s'\nInvalid type\n"); \
     }                                                                          \
   } while (0)
 
@@ -45,10 +57,14 @@
         }                                                                      \
       }                                                                        \
       if (jsondata->location == (type)ARRAY_SIZE(arr)) {                       \
-        free(jsondata);                                                        \
-        cJSON_Delete(json);                                                    \
-        return NULL;                                                           \
+        JSON_RETURN_WITH_ERROR(                                                \
+            jsondata, json, file, name,                                        \
+            "Error parsing config file '%s'\nInvalid value\n");                \
       }                                                                        \
+    } else {                                                                   \
+      JSON_RETURN_WITH_ERROR(                                                  \
+          jsondata, json, file, name,                                          \
+          "Error parsing config file '%s'\nInvalid type\n");                   \
     }                                                                          \
   } while (0)
 
