@@ -1,7 +1,5 @@
 #include "prayerTimes.h"
 
-#include <stdio.h>
-
 #define PROG_NAME_FRIENDLY "prayer-notify"
 #define PROG_NAME "prayer-notify"
 
@@ -12,7 +10,7 @@ void print_prayer_times_help(PrayerTimes *prayerTimes);
 void print_debug_help(PrayerTimes *prayerTimes);
 
 // print the help msg to the stdout.
-void print_help(FILE *f);
+int print_help(const char *arg);
 
 void print_next_prayer(PrayerTimes *prayerTimes);
 

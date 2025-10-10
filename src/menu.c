@@ -2,70 +2,101 @@
 #include "config.h"
 #include "prayerTimes.h"
 #include "timeHandle.h"
-#include "version.h"
+#include <bits/getopt_core.h>
+#include <stdio.h>
+#include <string.h>
 
-void print_help(FILE *f) {
-  fputs(PROG_NAME_FRIENDLY " " APP_VERSION "\n\n", f);
-  fputs(
-      "Usage: " PROG_NAME " options...\n"
-      "\n"
-      " Options\n"
-      "    --help                      -h  you're reading it\n"
-      "    --option                    -o  print the options into stdout \n"
-      "    --prayer                    -r  print the options into stdout \n"
-      "    --next                      -n  print the next prayer into stdout \n"
-      "    --previous                  -p  print the previous prayer into "
-      "stdout \n"
-      "    --version                   -v  prints name and version, then "
-      "exits\n"
-      "    --date arg                  -d  get prayer times for arbitrary "
-      "date\n"
-      "    --timezone arg              -z  get prayer times for arbitrary "
-      "timezone\n"
-      "  * --latitude arg              -t  latitude of desired location\n"
-      "  * --longitude arg             -g  longitude of desired location\n"
-      "    --calc-method arg           -c  select prayer time calculation "
-      "method\n"
-      "    --asr-juristic-method arg   -a  select Juristic method for "
-      "calculating Asr prayer time\n"
-      "    --high-lats-method arg      -i  select adjusting method for "
-      "higher latitude\n"
-      "    --dhuhr-minutes arg             minutes after mid-way for "
-      "calculating Dhuhr prayer time\n"
-      " ** --maghrib-minutes arg           minutes after sunset for "
-      "calculating Maghrib prayer time\n"
-      " ** --isha-minutes arg              minutes after Maghrib for "
-      "calculating Isha prayer time\n"
-      " ** --fajr-angle arg                angle for calculating Fajr prayer "
-      "time\n"
-      " ** --maghrib-angle arg             angle for calculating Maghrib "
-      "prayer time\n"
-      " ** --isha-angle arg                angle for calculating Isha prayer "
-      "time\n"
-      "\n"
-      "  * These options are required\n"
-      " ** By providing any of these options the calculation method is set "
-      "to custom\n"
-      "\n"
-      " Possible arguments for --calc-method\n"
-      "    Jafari        Ithna Ashari\n"
-      "    Karachi       University of Islamic Sciences, Karachi\n"
-      "    Isna          Islamic Society of North America (ISNA)\n"
-      "    Mwl           Muslim World League (MWL)\n"
-      "    Makkah        Umm al-Qura, Makkah\n"
-      "    Egypt         Egyptian General Authority of Survey\n"
-      "    Custom        Custom Setting\n"
-      "\n"
-      " Possible arguments for --asr-juristic-method\n"
-      "    Shafii        Shafii (standard)\n"
-      "    Hanafi        Hanafi\n"
-      "\n"
-      " Possible arguments for --high-lats-method\n"
-      "    MidNight      middle of night\n"
-      "    OneSeventh    1/7th of night\n"
-      "    AngleBased    angle/60th of night\n"
-      "    None          No adjustment\n",
-      f);
+int print_help(const char *arg) {
+  if (!arg) {
+    puts("Usage: " PROG_NAME " [options]"
+         "\nOptions:\n"
+         "    --help, -h                  Display this help message\n"
+         "    --version, -v               Show the name and version "
+         "of the program\n"
+         "    --options, -o                Print available options\n"
+         "For detailed help, use: --help <section>\n"
+         "\nSections:\n"
+         "    prayer\n"
+         "    date\n"
+         "    location\n"
+         "    calculation\n"
+         "    juristic\n"
+         "    adjustment\n");
+    return 1;
+  } else if (strcmp(arg, "prayer") == 0) {
+    printf("Prayer Options:\n"
+           "    --next, -n                  Print the next prayer time\n"
+           "    --previous, -p              Print the previous prayer time.\n");
+    return 1;
+  } else if (strcmp(arg, "date") == 0) {
+    printf(
+        "Date Options:\n"
+        "    --date <arg>, -d <arg>      Get prayer times for a specific date\n"
+        "    --timezone <arg>, -z <arg>  Get prayer times for a specific "
+        "timezone\n");
+    return 1;
+  } else if (strcmp(arg, "location") == 0) {
+    printf(
+        "Location Options:\n"
+        "    --latitude <arg>, -t <arg>  Latitude of the desired location.\n"
+        "    --longitude <arg>, -g <arg>  Longitude of the desired location.\n"
+        "\n");
+    return 1;
+  } else if (strcmp(arg, "calculation") == 0) {
+    printf("Calculation Method Options:\n"
+           "    --calc-method <arg>, -c <arg>          Select prayer time "
+           "calculation method.\n\n"
+           "Calculation Method Options:\n"
+           "    Jafari            Ithna Ashari\n"
+           "    Karachi           Islamic University of Sciences, Karachi\n"
+           "    Isna              Islamic Society of North America (ISNA)\n"
+           "    MWL               Muslim World League (MWL)\n"
+           "    Makkah           Umm al-Qura, Makkah\n"
+           "    Egypt             Egyptian General Authority of Survey\n"
+           "    Custom            Custom Setting\n"
+           "\n");
+    return 1;
+  } else if (strcmp(arg, "juristic") == 0) {
+    printf(
+        "Asr Juristic Method Options:\n"
+        "    --asr-juristic-method <arg>, -a <arg>  Select Juristic method for "
+        "Asr prayer time.\n\n"
+        "Asr Juristic Method Options:\n"
+        "    Shafii            Standard Shafii method\n"
+        "    Hanafi            Hanafi method\n"
+        "\n");
+    return 1;
+  } else if (strcmp(arg, "adjustment") == 0) {
+    printf(
+        "Latitude Adjustment Options:\n"
+        "    --high-lats-method <arg>, -i <arg>      Select adjustment method "
+        "for higher latitudes.\n"
+        "\n"
+        "    Dhuhr and Maghrib Adjustments:\n"
+        "    --dhuhr-minutes <arg>              Minutes after mid-day to "
+        "adjust Dhuhr prayer time.\n"
+        "    --maghrib-minutes <arg>            Minutes after sunset to adjust "
+        "Maghrib prayer time.\n"
+        "    --isha-minutes <arg>               Minutes after Maghrib to "
+        "adjust Isha prayer time.\n"
+        "\n"
+        "    Angle Options for Prayer Times:\n"
+        "    --fajr-angle <arg>                 Angle for calculating Fajr "
+        "prayer time.\n"
+        "    --maghrib-angle <arg>              Angle for calculating Maghrib "
+        "prayer time.\n"
+        "    --isha-angle <arg>                 Angle for calculating Isha "
+        "prayer time.\n"
+        "\n"
+        "High Latitude Adjustment Options:\n"
+        "    MidNight          Middle of the night\n"
+        "    OneSeventh        One-seventh of the night\n"
+        "    AngleBased        Angle/60th of the night\n"
+        "    None              No adjustment");
+    return 1;
+  }
+  fprintf(stderr, "Unknown help Option: %s\n", arg);
+  return 2;
 }
 
 void print_debug_help(PrayerTimes *prayerTimes) {

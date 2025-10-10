@@ -35,9 +35,10 @@ int handle_double_option(const char *optarg, double *value,
 
 // print basic config data to stdout
 int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
+  opterr = 0;
   for (;;) {
     static struct option long_options[] = {
-        {"help", no_argument, NULL, 'h'},
+        {"help", optional_argument, NULL, 'h'},
         {"option", no_argument, NULL, 'o'},
         {"prayer", no_argument, NULL, 'r'},
         {"next", no_argument, NULL, 'n'},
@@ -68,18 +69,19 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
     };
 
     int option_index = 0;
-    int c = getopt_long(argc, argv, "hornpvd:z:t:g:c:a:i:", long_options,
+    int c = getopt_long(argc, argv, "h:ornpvd:z:t:g:c:a:i:", long_options,
                         &option_index);
 
     if (c == -1)
       break; // Last option
 
-    if (!optarg && c != 'h' && c != 'v' && c != 'o' && c != 'n' && c != 'r' &&
-        c != 'p') {
-      fprintf(stderr, "Error: %s option requires an argument\n",
-              long_options[option_index].name);
-      return 2;
-    }
+    // if (!optarg && c != 'h' && c != 'v' && c != 'o' && c != 'n' && c != 'r'
+    // &&
+    //     c != 'p') {
+    //   fprintf(stderr, "Error: %s option requires an argument\n",
+    //           long_options[option_index].name);
+    //   return 2;
+    // }
 
     double arg;
     switch (c) {
@@ -113,8 +115,7 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
       }
       break;
     case 'h': // --help
-      print_help(stdout);
-      return 1;
+      return print_help(optarg);
     case 'o': // --stdout
       print_debug_help(prayerTimes);
       return 1;
@@ -185,9 +186,14 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
       CHECK_METHOD(Adjusting, ADJUSTINGMETHOD_COUNT, optarg,
                    prayerTimes->adjust_high_lats);
       break;
+    case '?':
+      if (optopt == 'h') {
+        print_help(NULL);
+        return 1;
+      }
+      break;
     default:
       fprintf(stderr, "Error: Unknown option '%c'\n", c);
-      print_help(stderr);
       return 2;
     }
   }
