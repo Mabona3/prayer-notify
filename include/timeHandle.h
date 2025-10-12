@@ -4,6 +4,12 @@
 #include <stdbool.h>
 #include <time.h>
 
+typedef struct {
+  int hours;
+  int minutes;
+  int seconds;
+} Time;
+
 /* return the hour and minutes parts of the returned double times[] of
  * get_prayer_times() */
 void get_float_time_parts(double times, int *hours, int *minutes);
@@ -28,5 +34,11 @@ double time_diff(double time1, double time2);
 
 /* add one day to the struct used in the midtime handler. */
 void time_add_day(struct tm *date);
+
+/* add one day to the struct used in the midtime handler. */
+void time_sub_day(struct tm *date);
+
+/* convert time_t into hours, minutes and seconds */
+Time convert_time_hms(int time);
 
 #endif // TIMEHANDLE_H

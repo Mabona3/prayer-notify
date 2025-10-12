@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <time.h>
 
 /* convert float hours to 24h format */
 void float_time_to_time24(double time, char *time24) {
@@ -44,9 +45,27 @@ inline double time_diff(double time1, double time2) {
 }
 
 inline void time_add_day(struct tm *date) {
+  ++date->tm_mday;
+  mktime(date);
   date->tm_hour = 0;
   date->tm_min = 0;
   date->tm_sec = 0;
-  date->tm_mday += 1;
-  date->tm_isdst = -1;
+}
+
+/* remove one day to the struct used in the midtime handler. */
+inline void time_sub_day(struct tm *date) {
+  --date->tm_mday;
+  mktime(date);
+  date->tm_hour = 0;
+  date->tm_min = 0;
+  date->tm_sec = 0;
+}
+
+inline Time convert_time_hms(int time) {
+  Time result;
+  result.hours = time / 3600;
+  time -= result.hours * 3600;
+  result.minutes = time / 60;
+  result.seconds = time - result.minutes * 60;
+  return result;
 }
