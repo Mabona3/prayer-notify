@@ -22,6 +22,7 @@
 #include "jsonReader.h"
 #include "notify.h"
 #include "timeHandle.h"
+#include "writer.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -65,7 +66,6 @@ int main(int argc, char *argv[]) {
 
     struct tm *date = localtime(&prayerTimes->time);
 
-    // preparing the times
     for (int i = 0; i < TIMEID_TimesCount; i++) {
       times_dates[i] = *date;
       times_dates[i].tm_sec = 0;
@@ -82,6 +82,7 @@ int main(int argc, char *argv[]) {
         continue;
       int dtime = timelocal(&times_dates[timeid]) - prayerTimes->time;
       if (dtime > 0) {
+        write_current(&times_dates[timeid], timeid);
         while (dtime > 0 && running) {
           dtime = sleep(dtime);
         }
@@ -102,4 +103,5 @@ int main(int argc, char *argv[]) {
   free(prayerTimes);
   prayerTimes = NULL;
   free_config_file();
+  close_current_writer();
 }
