@@ -4,6 +4,23 @@
 #include <stdio.h>
 #include <time.h>
 
+void update_times(PrayerTimes *prayerTimes, struct tm *times_dates,
+                  double *times) {
+
+  get_prayer_times_time(prayerTimes, prayerTimes->latitude,
+                        prayerTimes->longitude,
+                        get_effective_timezone_time(prayerTimes->time), times);
+
+  struct tm *date = localtime(&prayerTimes->time);
+
+  for (int i = 0; i < TIMEID_TimesCount; i++) {
+    times_dates[i] = *date;
+    times_dates[i].tm_sec = 0;
+    get_float_time_parts(times[i], &times_dates[i].tm_hour,
+                         &times_dates[i].tm_min);
+  }
+}
+
 /* convert float hours to 24h format */
 void float_time_to_time24(double time, char *time24) {
   if (isnan(time)) {

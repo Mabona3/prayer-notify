@@ -21,6 +21,7 @@
 #include "config.h"
 #include "jsonReader.h"
 #include "notify.h"
+#include "prayerTimes.h"
 #include "timeHandle.h"
 #include "writer.h"
 
@@ -55,25 +56,16 @@ int main(int argc, char *argv[]) {
     return parse_status - 1;
   }
 
-  double times[TIMEID_TimesCount];
   struct tm times_dates[TIMEID_TimesCount];
+  double times[TIMEID_TimesCount];
+  struct tm *date;
+  TimeID timeid;
+
+  update_times(prayerTimes, times_dates, times);
 
   while (running) {
     prayerTimes->time = time(NULL);
-    get_prayer_times_time(
-        prayerTimes, prayerTimes->latitude, prayerTimes->longitude,
-        get_effective_timezone_time(prayerTimes->time), times);
 
-    struct tm *date = localtime(&prayerTimes->time);
-
-    for (int i = 0; i < TIMEID_TimesCount; i++) {
-      times_dates[i] = *date;
-      times_dates[i].tm_sec = 0;
-      get_float_time_parts(times[i], &times_dates[i].tm_hour,
-                           &times_dates[i].tm_min);
-    }
-
-    TimeID timeid;
     for (timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount && running;
          timeid++) {
       if (timeid ==
@@ -83,9 +75,8 @@ int main(int argc, char *argv[]) {
       int dtime = timelocal(&times_dates[timeid]) - prayerTimes->time;
       if (dtime > 0) {
         write_current(&times_dates[timeid], timeid);
-        while (dtime > 0 && running) {
+        while (dtime > 0 && running)
           dtime = sleep(dtime);
-        }
 
         if (running)
           send_notification(timeid);
@@ -94,10 +85,14 @@ int main(int argc, char *argv[]) {
     }
     date = localtime(&prayerTimes->time);
     time_add_day(date);
+
+    prayerTimes->time = mktime(date);
+    update_times(prayerTimes, times_dates, times);
+    write_current(&times_dates[TIMEID_Fajr], TIMEID_Fajr);
+
     int dtime = difftime(mktime(date), prayerTimes->time);
-    while (dtime > 0 && running) {
+    while (dtime > 0 && running)
       dtime = sleep(dtime);
-    }
   }
 
   free(prayerTimes);
