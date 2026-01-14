@@ -97,49 +97,48 @@ typedef enum {
 } TimeID;
 
 typedef enum {
-  JURISTIC_Shafi,  // Shafii (standard)
-  JURISTIC_Hanafi, // Hanafi
-                   //
+  JURISTIC_Shafi,   // Shafii (standard)
+  JURISTIC_Hanafi,  // Hanafi
+                    //
   JURISTICMETHOD_COUNT,
 } JuristicMethod;
 
 typedef enum {
-  CALCULATION_Jafari,  // Ithna Ashari
-  CALCULATION_Karachi, // University of Islamic Sciences, Karachi
-  CALCULATION_ISNA,    // Islamic Society of North America (ISNA)
-  CALCULATION_MWL,     // Muslim World League (MWL)
-  CALCULATION_Makkah,  // Umm al-Qura, Makkah
-  CALCULATION_Egypt,   // Egyptian General Authority of Survey
-  CALCULATION_Custom,  // Custom Setting
+  CALCULATION_Jafari,   // Ithna Ashari
+  CALCULATION_Karachi,  // University of Islamic Sciences, Karachi
+  CALCULATION_ISNA,     // Islamic Society of North America (ISNA)
+  CALCULATION_MWL,      // Muslim World League (MWL)
+  CALCULATION_Makkah,   // Umm al-Qura, Makkah
+  CALCULATION_Egypt,    // Egyptian General Authority of Survey
+  CALCULATION_Custom,   // Custom Setting
 
   CALCULATIONMETHOD_COUNT
 } CalculationMethod;
 
 typedef enum {
-  ADJUSTING_MidNight,   // middle of night
-  ADJUSTING_OneSeventh, // 1/7th of night
-  ADJUSTING_AngleBased, // angle/60th of night
-  ADJUSTING_None,       // No adjustment
-                        //
+  ADJUSTING_MidNight,    // middle of night
+  ADJUSTING_OneSeventh,  // 1/7th of night
+  ADJUSTING_AngleBased,  // angle/60th of night
+  ADJUSTING_None,        // No adjustment
+                         //
   ADJUSTINGMETHOD_COUNT,
 } AdjustingMethod;
 
 typedef struct {
-
   double fajr_angle;
   bool maghrib_is_minutes;
-  double maghrib_value; // angle or minutes
+  double maghrib_value;  // angle or minutes
   bool isha_is_minutes;
-  double isha_value; // angle or minutes
+  double isha_value;  // angle or minutes
 } MethodConfig;
 
 typedef struct {
-  CalculationMethod calc_method;    // caculation method
-  JuristicMethod asr_juristic;      // Juristic method for Asr
-  AdjustingMethod adjust_high_lats; // adjusting method for higher latitudes
-  double dhuhr_minutes;             // minutes after mid-day for Dhuhr
+  CalculationMethod calc_method;     // caculation method
+  JuristicMethod asr_juristic;       // Juristic method for Asr
+  AdjustingMethod adjust_high_lats;  // adjusting method for higher latitudes
+  double dhuhr_minutes;              // minutes after mid-day for Dhuhr
 
-  time_t time; // The day in which it is will be processed.
+  time_t time;  // The day in which it is will be processed.
 
   double longitude;
   double latitude;
@@ -157,21 +156,21 @@ static const char *TimeName[TIMEID_TimesCount] = {
 };
 
 static const char *Calculation[CALCULATIONMETHOD_COUNT] = {
-    "Jafari",  // Ithna Ashari
-    "Karachi", // University of Islamic Sciences, Karachi
-    "Isna",    // Islamic Society of North America (ISNA)
-    "Mwl",     // Muslim World League (MWL)
-    "Makkah",  // Umm al-Qura, Makkah
-    "Egypt",   // Egyptian General Authority of Survey
-    "Custom"   // Custom Setting
+    "Jafari",   // Ithna Ashari
+    "Karachi",  // University of Islamic Sciences, Karachi
+    "Isna",     // Islamic Society of North America (ISNA)
+    "Mwl",      // Muslim World League (MWL)
+    "Makkah",   // Umm al-Qura, Makkah
+    "Egypt",    // Egyptian General Authority of Survey
+    "Custom"    // Custom Setting
 };
 
 // Used for converting from enum to string
 static const char *Adjusting[] = {
-    "MidNight",   // middle of night
-    "OneSeventh", // 1/7th of night
-    "AngleBased", // angle/60th of night
-    "None",       // No adjustment
+    "MidNight",    // middle of night
+    "OneSeventh",  // 1/7th of night
+    "AngleBased",  // angle/60th of night
+    "None",        // No adjustment
 };
 
 /* --------------------- User Interface ----------------------- */
@@ -287,4 +286,4 @@ void set_isha_angle(PrayerTimes *prayerTimes, double angle);
 /* set the minutes after Maghrib for calculating Isha */
 void set_isha_minutes(PrayerTimes *prayerTimes, double minutes);
 
-#endif // PRAYERTIMES_H
+#endif  // PRAYERTIMES_H

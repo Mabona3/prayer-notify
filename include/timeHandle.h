@@ -1,9 +1,10 @@
 #ifndef TIMEHANDLE_H
 #define TIMEHANDLE_H
 
-#include "prayerTimes.h"
 #include <stdbool.h>
 #include <time.h>
+
+#include "prayerTimes.h"
 
 typedef struct {
   int hours;
@@ -45,4 +46,4 @@ Time convert_time_hms(int time);
 void update_times(PrayerTimes *prayerTimes, struct tm *times_dates,
                   double *times);
 
-#endif // TIMEHANDLE_H
+#endif  // TIMEHANDLE_H

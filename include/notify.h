@@ -8,4 +8,4 @@
 // Send notification using the required prayer time id
 void send_notification(TimeID current_time);
 
-#endif // NOTIFY_H
+#endif  // NOTIFY_H

@@ -12,4 +12,4 @@
  */
 int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]);
 
-#endif // COMMON_H
+#endif  // COMMON_H

@@ -1,13 +1,15 @@
 #include "writer.h"
-#include "config.h"
-#include "prayerTimes.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
+#include "prayerTimes.h"
+
 int close_current_writer() {
-  const char *temp_file = get_temp_file();
-  if (temp_file == NULL) {
+  char *temp_file;
+  if (get_temp_file(&temp_file)) {
     return EXIT_FAILURE;
   }
 
@@ -15,13 +17,13 @@ int close_current_writer() {
     return 1;
   }
 
-  free_temp_file();
+  free(temp_file);
   return 0;
 }
 
 int write_current(struct tm *t, TimeID current) {
-  const char *temp_file = get_temp_file();
-  if (temp_file == NULL) {
+  char *temp_file;
+  if (get_temp_file(&temp_file)) {
     return EXIT_FAILURE;
   }
 

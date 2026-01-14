@@ -1,8 +1,9 @@
 #include "prayerTimes.h"
-#include "timeHandle.h"
 
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
+
+#include "timeHandle.h"
 
 MethodConfig create_method_config(double fajr_angle, bool maghrib_is_minutes,
                                   double maghrib_value, bool isha_is_minutes,
@@ -19,28 +20,28 @@ PrayerTimes *create_prayer_times(CalculationMethod calc_method,
                                  double dhuhr_minutes) {
   PrayerTimes *prayerTimes = malloc(sizeof(PrayerTimes));
   *prayerTimes = (PrayerTimes){
-      .calc_method = calc_method,   // caculation method
-      .asr_juristic = asr_juristic, // Juristic method for Asr
+      .calc_method = calc_method,    // caculation method
+      .asr_juristic = asr_juristic,  // Juristic method for Asr
       .adjust_high_lats =
-          adjust_high_lats,           // adjusting method for higher latitudes
-      .dhuhr_minutes = dhuhr_minutes, // minutes after mid-day for Dhuhr
+          adjust_high_lats,            // adjusting method for higher latitudes
+      .dhuhr_minutes = dhuhr_minutes,  // minutes after mid-day for Dhuhr
   };
 
   // Actual Constants
   prayerTimes->method_params[CALCULATION_Jafari] =
-      create_method_config(16.0, false, 4.0, false, 14.0); // Jafari
+      create_method_config(16.0, false, 4.0, false, 14.0);  // Jafari
   prayerTimes->method_params[CALCULATION_Karachi] =
-      create_method_config(18.0, true, 0.0, false, 18.0); // Karachi
+      create_method_config(18.0, true, 0.0, false, 18.0);  // Karachi
   prayerTimes->method_params[CALCULATION_ISNA] =
-      create_method_config(15.0, true, 0.0, false, 15.0); // ISNA
+      create_method_config(15.0, true, 0.0, false, 15.0);  // ISNA
   prayerTimes->method_params[CALCULATION_MWL] =
-      create_method_config(18.0, true, 0.0, false, 17.0); // MWL
+      create_method_config(18.0, true, 0.0, false, 17.0);  // MWL
   prayerTimes->method_params[CALCULATION_Makkah] =
-      create_method_config(19.0, true, 0.0, true, 90.0); // Makkah
+      create_method_config(19.0, true, 0.0, true, 90.0);  // Makkah
   prayerTimes->method_params[CALCULATION_Egypt] =
-      create_method_config(19.5, true, 0.0, false, 17.5); // Egypt
+      create_method_config(19.5, true, 0.0, false, 17.5);  // Egypt
   prayerTimes->method_params[CALCULATION_Custom] =
-      create_method_config(18.0, true, 0.0, false, 17.0); // Custom
+      create_method_config(18.0, true, 0.0, false, 17.0);  // Custom
 
   return prayerTimes;
 }
@@ -79,8 +80,8 @@ double get_effective_timezone_date(int year, int month, int day) {
   date.tm_year = year - 1900;
   date.tm_mon = month - 1;
   date.tm_mday = day;
-  date.tm_isdst = -1;           // determine it yourself from system
-  time_t local = mktime(&date); // seconds since midnight Jan 1, 1970
+  date.tm_isdst = -1;            // determine it yourself from system
+  time_t local = mktime(&date);  // seconds since midnight Jan 1, 1970
   return get_effective_timezone_time(local);
 }
 
@@ -157,12 +158,10 @@ void compute_times(PrayerTimes *prayerTimes, double times[]) {
 
 /* compute prayer times at given julian date */
 void compute_day_times(PrayerTimes *prayerTimes, double times[]) {
-  double default_times[] = {5, 6, 12, 13, 18, 18, 18}; // default times
-  for (int i = 0; i < TIMEID_TimesCount; ++i)
-    times[i] = default_times[i];
+  double default_times[] = {5, 6, 12, 13, 18, 18, 18};  // default times
+  for (int i = 0; i < TIMEID_TimesCount; ++i) times[i] = default_times[i];
 
-  for (int i = 0; i < 1; ++i)
-    compute_times(prayerTimes, times);
+  for (int i = 0; i < 1; ++i) compute_times(prayerTimes, times);
 
   adjust_times(prayerTimes, times);
 }
@@ -204,15 +203,15 @@ void set_isha_minutes(PrayerTimes *prayerTimes, double minutes) {
 void adjust_times(PrayerTimes *prayerTimes, double times[]) {
   for (int i = 0; i < TIMEID_TimesCount; ++i)
     times[i] += prayerTimes->timezone - (prayerTimes->longitude / 15.0);
-  times[TIMEID_Dhuhr] += prayerTimes->dhuhr_minutes / 60.0; // Dhuhr
+  times[TIMEID_Dhuhr] += prayerTimes->dhuhr_minutes / 60.0;  // Dhuhr
   if (prayerTimes->method_params[prayerTimes->calc_method]
-          .maghrib_is_minutes) // Maghrib
+          .maghrib_is_minutes)  // Maghrib
     times[TIMEID_Maghrib] =
         times[TIMEID_Sunset] +
         prayerTimes->method_params[prayerTimes->calc_method].maghrib_value /
             60.0;
   if (prayerTimes->method_params[prayerTimes->calc_method]
-          .isha_is_minutes) // Isha
+          .isha_is_minutes)  // Isha
     times[TIMEID_Isha] =
         times[TIMEID_Maghrib] +
         prayerTimes->method_params[prayerTimes->calc_method].isha_value / 60.0;
@@ -224,7 +223,7 @@ void adjust_times(PrayerTimes *prayerTimes, double times[]) {
 /* adjust Fajr, Isha and Maghrib for locations in higher latitudes */
 void adjust_high_lat_times(PrayerTimes *prayerTimes, double times[]) {
   double night_time = time_diff(times[TIMEID_Sunset],
-                                times[TIMEID_Sunrise]); // sunset to sunrise
+                                times[TIMEID_Sunrise]);  // sunset to sunrise
 
   // Adjust Fajr
   double fajr_diff =
@@ -260,25 +259,24 @@ void adjust_high_lat_times(PrayerTimes *prayerTimes, double times[]) {
 /* the night portion used for adjusting times in higher latitudes */
 double night_portion(PrayerTimes *prayerTimes, double angle) {
   switch (prayerTimes->adjust_high_lats) {
-  case ADJUSTING_AngleBased:
-    return angle / 60.0;
-  case ADJUSTING_MidNight:
-    return 1.0 / 2.0;
-  case ADJUSTING_OneSeventh:
-    return 1.0 / 7.0;
-  default:
-    // Just to return something!
-    // In original library nothing was returned
-    // Maybe I should throw an exception
-    // It must be impossible to reach here
-    return 0;
+    case ADJUSTING_AngleBased:
+      return angle / 60.0;
+    case ADJUSTING_MidNight:
+      return 1.0 / 2.0;
+    case ADJUSTING_OneSeventh:
+      return 1.0 / 7.0;
+    default:
+      // Just to return something!
+      // In original library nothing was returned
+      // Maybe I should throw an exception
+      // It must be impossible to reach here
+      return 0;
   }
 }
 
 /* convert hours to day portions  */
 void day_portion(double times[]) {
-  for (int i = 0; i < TIMEID_TimesCount; ++i)
-    times[i] /= 24.0;
+  for (int i = 0; i < TIMEID_TimesCount; ++i) times[i] /= 24.0;
 }
 
 /* ---------------------- Misc Functions ----------------------- */

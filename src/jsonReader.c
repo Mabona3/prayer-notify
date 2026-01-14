@@ -1,6 +1,4 @@
 #include "jsonReader.h"
-#include "config.h"
-#include "prayerTimes.h"
 
 #include <cjson/cJSON.h>
 #include <errno.h>
@@ -9,16 +7,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
+#include "prayerTimes.h"
+
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #define BUFFER_SIZE 512
 
-#define JSON_RETURN_WITH_ERROR(jsondata, json, file, name, error_string)       \
-  do {                                                                         \
-    fprintf(stderr, error_string, name);                                       \
-    cJSON_Delete(json);                                                        \
-    fclose(file);                                                              \
-    free(jsondata);                                                            \
-    return NULL;                                                               \
+#define JSON_RETURN_WITH_ERROR(jsondata, json, file, name, error_string) \
+  do {                                                                   \
+    fprintf(stderr, error_string, name);                                 \
+    cJSON_Delete(json);                                                  \
+    fclose(file);                                                        \
+    free(jsondata);                                                      \
+    return NULL;                                                         \
   } while (0)
 
 // PrayerTimes is the struct type that holds the data
@@ -26,16 +27,17 @@
 // location is the field in PrayerTimes struct that should be retrieved
 // tmp is a tmp cJson that holds the retrieved from the cjson.
 // name is the name of the field that should be retrieved from the struct
-#define JSON_RETRIEVE_DOUBLE(jsondata, json, location, tmp, name)              \
-  do {                                                                         \
-    jsondata->location = NAN;                                                  \
-    tmp = cJSON_GetObjectItemCaseSensitive(json, name);                        \
-    if (cJSON_IsNumber(tmp)) {                                                 \
-      jsondata->location = tmp->valuedouble;                                   \
-    } else {                                                                   \
-      JSON_RETURN_WITH_ERROR(jsondata, json, file, name,                       \
-                             "Error parsing config file '%s'\nInvalid type\n"); \
-    }                                                                          \
+#define JSON_RETRIEVE_DOUBLE(jsondata, json, location, tmp, name) \
+  do {                                                            \
+    jsondata->location = NAN;                                     \
+    tmp = cJSON_GetObjectItemCaseSensitive(json, name);           \
+    if (cJSON_IsNumber(tmp)) {                                    \
+      jsondata->location = tmp->valuedouble;                      \
+    } else {                                                      \
+      JSON_RETURN_WITH_ERROR(                                     \
+          jsondata, json, file, name,                             \
+          "Error parsing config file '%s'\nInvalid type\n");      \
+    }                                                             \
   } while (0)
 
 // PrayerTimes is the struct type that holds the data
@@ -44,28 +46,28 @@
 // tmp is a tmp cJson that holds the retrieved from the cjson.
 // arr is an array that holds the string that should compared to find the enum
 // name is the name of the field that should be retrieved from the struct
-#define JSON_RETRIEVE_ENUM_ARRAY(jsondata, json, location, tmp, arr, type,     \
-                                 name)                                         \
-  do {                                                                         \
-    tmp = cJSON_GetObjectItemCaseSensitive(json, name);                        \
-    jsondata->location = (type)ARRAY_SIZE(arr);                                \
-    if (cJSON_IsString(tmp)) {                                                 \
-      for (unsigned int i = 0; i < ARRAY_SIZE(arr); ++i) {                     \
-        if (strcmp(arr[i], tmp->valuestring) == 0) {                           \
-          jsondata->location = (type)i;                                        \
-          break;                                                               \
-        }                                                                      \
-      }                                                                        \
-      if (jsondata->location == (type)ARRAY_SIZE(arr)) {                       \
-        JSON_RETURN_WITH_ERROR(                                                \
-            jsondata, json, file, name,                                        \
-            "Error parsing config file '%s'\nInvalid value\n");                \
-      }                                                                        \
-    } else {                                                                   \
-      JSON_RETURN_WITH_ERROR(                                                  \
-          jsondata, json, file, name,                                          \
-          "Error parsing config file '%s'\nInvalid type\n");                   \
-    }                                                                          \
+#define JSON_RETRIEVE_ENUM_ARRAY(jsondata, json, location, tmp, arr, type, \
+                                 name)                                     \
+  do {                                                                     \
+    tmp = cJSON_GetObjectItemCaseSensitive(json, name);                    \
+    jsondata->location = (type)ARRAY_SIZE(arr);                            \
+    if (cJSON_IsString(tmp)) {                                             \
+      for (unsigned int i = 0; i < ARRAY_SIZE(arr); ++i) {                 \
+        if (strcmp(arr[i], tmp->valuestring) == 0) {                       \
+          jsondata->location = (type)i;                                    \
+          break;                                                           \
+        }                                                                  \
+      }                                                                    \
+      if (jsondata->location == (type)ARRAY_SIZE(arr)) {                   \
+        JSON_RETURN_WITH_ERROR(                                            \
+            jsondata, json, file, name,                                    \
+            "Error parsing config file '%s'\nInvalid value\n");            \
+      }                                                                    \
+    } else {                                                               \
+      JSON_RETURN_WITH_ERROR(                                              \
+          jsondata, json, file, name,                                      \
+          "Error parsing config file '%s'\nInvalid type\n");               \
+    }                                                                      \
   } while (0)
 
 PrayerTimes *get_default_config() {
@@ -87,7 +89,11 @@ PrayerTimes *read_config() {
   }
   char buffer[BUFFER_SIZE];
   FILE *file;
-  const char *config_file = get_config_file();
+  char *config_file;
+  if (get_config_file(&config_file)) {
+    return NULL;
+  }
+
   if (!(file = fopen(config_file, "r"))) {
     return (build_default_config(jsondata, config_file) != 0) ? NULL : jsondata;
   }

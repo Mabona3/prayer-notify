@@ -9,4 +9,4 @@ PrayerTimes *read_config();
 // return the default prayertimes struct
 PrayerTimes *get_default_config();
 
-#endif // JSONREADER_H
+#endif  // JSONREADER_H

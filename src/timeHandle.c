@@ -6,7 +6,6 @@
 
 void update_times(PrayerTimes *prayerTimes, struct tm *times_dates,
                   double *times) {
-
   get_prayer_times_time(prayerTimes, prayerTimes->latitude,
                         prayerTimes->longitude,
                         get_effective_timezone_time(prayerTimes->time), times);
@@ -46,7 +45,7 @@ void float_time_to_time12(double time, bool no_suffix, char *time12) {
 }
 
 void get_float_time_parts(double time, int *hours, int *minutes) {
-  time = fix_hour(time + 0.5 / 60); // add 0.5 minutes to round
+  time = fix_hour(time + 0.5 / 60);  // add 0.5 minutes to round
   *hours = floor(time);
   *minutes = floor((time - *hours) * 60);
 }
