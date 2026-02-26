@@ -18,12 +18,13 @@
  */
 
 #include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "common.h"
 #include "jsonReader.h"
 #include "notify.h"
+#include "option.h"
 #include "prayerTimes.h"
 #include "timeHandle.h"
 #include "writer.h"
@@ -60,6 +61,12 @@ int main(int argc, char *argv[]) {
 
   update_times(prayerTimes, times_dates, times);
 
+  // Another instance is running
+  if (check_temp_file()) {
+    fprintf(stderr, "another instance is running\n");
+    return 1;
+  }
+
   while (running) {
     prayerTimes->time = time(NULL);
 
@@ -71,7 +78,7 @@ int main(int argc, char *argv[]) {
         continue;
       int dtime = timelocal(&times_dates[timeid]) - prayerTimes->time;
       if (dtime > 0) {
-        write_current(&times_dates[timeid], timeid);
+        write_current(times_dates, timeid);
         while (dtime > 0 && running) dtime = sleep(dtime);
 
         if (running) send_notification(timeid);
@@ -83,7 +90,7 @@ int main(int argc, char *argv[]) {
 
     prayerTimes->time = mktime(date);
     update_times(prayerTimes, times_dates, times);
-    write_current(&times_dates[TIMEID_Fajr], TIMEID_Fajr);
+    write_current(times_dates, TIMEID_Fajr);
 
     int dtime = difftime(mktime(date), prayerTimes->time);
     while (dtime > 0 && running) dtime = sleep(dtime);

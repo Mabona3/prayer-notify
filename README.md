@@ -24,15 +24,17 @@ systemctl --user enable prayer-notify
 ```
 
 Configure the location through ~/.config/prayer-notify and the method of calculation based on your location.
-for more information use `prayer-notify --help`
+for more information use `prayer-notify -h`
 
 ## Waybar
-The next prayer is updated on each prayer in /tmp/prayer-notify.txt to make waybar read it just add a custom module as follows:
+The next prayer is updated on each prayer in /tmp/prayer-notify.json to make waybar read it just add a custom module as follows:
 
 ```json
-   "custom/prayer": {
-        "format": "{}",
-        "return-type": "text",
-        "exec": "cat /tmp/prayer-notify.txt"
+    "custom/prayer": {
+        "format": "{text}",
+        "tooltip": true,
+        "exec": "cat /tmp/prayer-notify.json",
+        "return-type": "json",
+        "interval": 1
     }
 ```
