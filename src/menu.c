@@ -14,11 +14,10 @@ int print_help(const char *arg) {
     puts("Usage: " PROG_NAME
          " [options]"
          "\nOptions:\n"
-         "    --help, -h                  Display this help message\n"
-         "    --version, -v               Show the name and version "
-         "of the program\n"
-         "    --options, -o                Print available options\n"
-         "For detailed help, use: --help <section>\n"
+         "    -h                  Display this help message\n"
+         "    -v                  Show the name and version of the program\n"
+         "    -o                  Print current options\n"
+         "For detailed help, use: -h <section>\n"
          "\nSections:\n"
          "    prayer\n"
          "    date\n"
@@ -30,34 +29,33 @@ int print_help(const char *arg) {
   } else if (strcmp(arg, "prayer") == 0) {
     printf(
         "Prayer Options:\n"
-        "    --next, -n                  Print the next prayer time\n"
-        "    --previous, -p              Print the previous prayer time.\n");
+        "    -n                  Print the next prayer time\n"
+        "    -p                  Print the previous prayer time.\n");
     return 1;
   } else if (strcmp(arg, "date") == 0) {
     printf(
         "Date Options:\n"
-        "    --date <arg>, -d <arg>      Get prayer times for a specific date\n"
-        "    --timezone <arg>, -z <arg>  Get prayer times for a specific "
+        "    -d <arg>      Get prayer times for a specific date\n"
+        "    -z <arg>      Get prayer times for a specific "
         "timezone\n");
     return 1;
   } else if (strcmp(arg, "location") == 0) {
     printf(
         "Location Options:\n"
-        "    --latitude <arg>, -t <arg>  Latitude of the desired location.\n"
-        "    --longitude <arg>, -g <arg>  Longitude of the desired location.\n"
+        "    -t <arg>      Latitude of the desired location.\n"
+        "    -g <arg>      Longitude of the desired location.\n"
         "\n");
     return 1;
   } else if (strcmp(arg, "calculation") == 0) {
     printf(
         "Calculation Method Options:\n"
-        "    --calc-method <arg>, -c <arg>          Select prayer time "
-        "calculation method.\n\n"
+        "    -c <arg>          Select prayer time calculation method.\n\n"
         "Calculation Method Options:\n"
         "    Jafari            Ithna Ashari\n"
         "    Karachi           Islamic University of Sciences, Karachi\n"
         "    Isna              Islamic Society of North America (ISNA)\n"
         "    MWL               Muslim World League (MWL)\n"
-        "    Makkah           Umm al-Qura, Makkah\n"
+        "    Makkah            Umm al-Qura, Makkah\n"
         "    Egypt             Egyptian General Authority of Survey\n"
         "    Custom            Custom Setting\n"
         "\n");
@@ -65,8 +63,7 @@ int print_help(const char *arg) {
   } else if (strcmp(arg, "juristic") == 0) {
     printf(
         "Asr Juristic Method Options:\n"
-        "    --asr-juristic-method <arg>, -a <arg>  Select Juristic method for "
-        "Asr prayer time.\n\n"
+        "    -a <arg>          Select Juristic method for Asr prayer time.\n\n"
         "Asr Juristic Method Options:\n"
         "    Shafii            Standard Shafii method\n"
         "    Hanafi            Hanafi method\n"
@@ -75,7 +72,7 @@ int print_help(const char *arg) {
   } else if (strcmp(arg, "adjustment") == 0) {
     printf(
         "Latitude Adjustment Options:\n"
-        "    --high-lats-method <arg>, -i <arg>      Select adjustment method "
+        "    -i <arg>          Select adjustment method "
         "for higher latitudes.\n"
         "\n"
         "    Dhuhr and Maghrib Adjustments:\n"
@@ -143,8 +140,8 @@ void print_prayer_times_help(PrayerTimes *prayerTimes) {
     times_dates[timeid].tm_sec = 0;
     get_float_time_parts(times[timeid], &times_dates[timeid].tm_hour,
                          &times_dates[timeid].tm_min);
-    printf("%s : %2.2d:%2.2d\n", TimeName[timeid], times_dates[timeid].tm_hour,
-           times_dates[timeid].tm_min);
+    printf("%s %2.2d:%2.2d\\n", TimeName[timeid],
+            times_dates[timeid].tm_hour, times_dates[timeid].tm_min);
   }
 }
 

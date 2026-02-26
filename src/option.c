@@ -1,4 +1,4 @@
-#include "common.h"
+#include "option.h"
 
 #include <bits/getopt_core.h>
 #include <getopt.h>
@@ -37,9 +37,9 @@ int handle_double_option(const char *optarg, double *value,
 // print basic config data to stdout
 int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
   opterr = 0;
-  for (;;) {
+  while (true) {
     static struct option long_options[] = {
-        {"help", optional_argument, NULL, 'h'},
+        {"help", required_argument, NULL, 'h'},
         {"option", no_argument, NULL, 'o'},
         {"prayer", no_argument, NULL, 'r'},
         {"next", no_argument, NULL, 'n'},
@@ -59,7 +59,6 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
         {"maghrib-angle", required_argument, NULL, 0},
         {"isha-angle", required_argument, NULL, 0},
         {0, 0, 0, 0}};
-
     enum {
       DHUHR_MINUTES = 9,
       MAGHRIB_MINUTES,
@@ -70,18 +69,16 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
     };
 
     int option_index = 0;
-    int c = getopt_long(argc, argv, "h:ornpvd:z:t:g:c:a:i:", long_options,
+    int c = getopt_long(argc, argv, "hornpvd:z:t:g:c:a:i:", long_options,
                         &option_index);
 
-    if (c == -1) break;  // Last option
+    if (c == -1) break;
 
-    // if (!optarg && c != 'h' && c != 'v' && c != 'o' && c != 'n' && c != 'r'
-    // &&
-    //     c != 'p') {
-    //   fprintf(stderr, "Error: %s option requires an argument\n",
-    //           long_options[option_index].name);
-    //   return 2;
-    // }
+    if (!optarg && c != 'h' && c != 'v' && c != 'o' && c != 'n' && c != 'r' &&
+        c != 'p' && c != '?') {
+      fprintf(stderr, "Error: -%c option requires an argument\n", c);
+      return 2;
+    }
 
     double arg;
     switch (c) {
@@ -114,25 +111,25 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
             return 2;
         }
         break;
-      case 'h':  // --help
-        return print_help(optarg);
-      case 'o':  // --stdout
+      case 'h':
+        // This is always null for now until fixed
+        return print_help(NULL);
+      case 'o':
         print_debug_help(prayerTimes);
         return 1;
-      case 'r':  // --prayer
+      case 'r':
         print_prayer_times_help(prayerTimes);
         return 1;
-      case 'n':  // --prayer
+      case 'n':
         print_next_prayer(prayerTimes);
         return 1;
-      case 'p':  // --prayer
+      case 'p':
         print_previous_prayer(prayerTimes);
         return 1;
-      case 'v':  // --version
+      case 'v':
         puts(PROG_NAME_FRIENDLY " " APP_VERSION);
         return 1;
-      case 'd':  // --date
-      {
+      case 'd': {
         struct tm new_date = {0};
         if (sscanf(optarg, "%d-%d-%d", &new_date.tm_mday, &new_date.tm_mon,
                    &new_date.tm_year) != 3) {
@@ -144,19 +141,19 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
         prayerTimes->time = mktime(&new_date);
         break;
       }
-      case 'z':  // --timezone
+      case 'z':
         if (handle_double_option(optarg, &prayerTimes->timezone, "timezone"))
           return 2;
         break;
-      case 't':  // --latitude
+      case 't':
         if (handle_double_option(optarg, &prayerTimes->latitude, "latitude"))
           return 2;
         break;
-      case 'g':  // --longitude
+      case 'g':
         if (handle_double_option(optarg, &prayerTimes->longitude, "longitude"))
           return 2;
         break;
-      case 'c':  // --calc-method
+      case 'c':
         prayerTimes->calc_method = CALCULATIONMETHOD_COUNT;
         for (int i = 0; i < CALCULATIONMETHOD_COUNT; i++) {
           if (strcmp(optarg, Calculation[i]) == 0) {
@@ -169,11 +166,11 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
           return 2;
         }
         break;
-      case 'a':  // --asr-juristic-method
+      case 'a':
         prayerTimes->asr_juristic = JURISTICMETHOD_COUNT;
         for (int i = 0; i < JURISTICMETHOD_COUNT; i++) {
           if (strcmp(optarg, Juristic[i]) == 0) {
-            prayerTimes->asr_juristic = JURISTIC_Shafi;
+            prayerTimes->asr_juristic = i;
             break;
           }
         }
@@ -182,15 +179,9 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]) {
           return 2;
         }
         break;
-      case 'i':  // --high-lats-method
+      case 'i':
         CHECK_METHOD(Adjusting, ADJUSTINGMETHOD_COUNT, optarg,
                      prayerTimes->adjust_high_lats);
-        break;
-      case '?':
-        if (optopt == 'h') {
-          print_help(NULL);
-          return 1;
-        }
         break;
       default:
         fprintf(stderr, "Error: Unknown option '%c'\n", c);

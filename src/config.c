@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 
 const char *CONFIG_FILE = "prayer-notify/config.json";
-const char *TEMP_FILE = "prayer-notify.txt";
+const char *TEMP_FILE = "prayer-notify.json";
 
 // Creating the parent dir of the config file if the parent dir is not found. it
 // returns 0 on success otherwise it will return 1.
