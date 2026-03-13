@@ -7,11 +7,11 @@ release: CFLAGS+=-s -O3
 release: $(MAIN)
 
 $(MAIN): $(OBJ_FILES)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(INC_FLAGS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(INC_FLAGS)
 
 run: $(MAIN)
 	@./$(MAIN)
@@ -22,8 +22,8 @@ debug: $(MAIN)
 install: $(MAIN)
 	@mkdir -p $(DIST_DIR)$(BINDIR)
 	@mkdir -p $(DIST_DIR)$(SERVICEDIR)
-	@install -m 544 $(SERVICE) $(DIST_DIR)$(SERVICEDIR)
-	@install -m 755 $(MAIN) $(DIST_DIR)$(BINDIR)
+	@install -Dm544 $(SERVICE) $(DIST_DIR)$(SERVICEDIR)
+	@install -Dm755 $(MAIN) $(DIST_DIR)$(BINDIR)
 
 uninstall:
 	@rm -f $(BINDIR)/$(NAME)
@@ -32,3 +32,4 @@ uninstall:
 clean:
 	rm -rf $(BUILD_DIR)
 
+.PHONY: all clean run debug test install uninstall release
