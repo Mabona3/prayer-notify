@@ -1,5 +1,9 @@
 BasedOnStyle: Google
 IndentWidth: 2
 
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: true
+AllowShortEnumsOnASingleLine: false
 PointerAlignment: Right
+AlignConsecutiveAssignments: Consecutive

@@ -18,11 +18,12 @@
  */
 
 #include <signal.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "jsonReader.h"
+#include "logger.h"
 #include "notify.h"
 #include "option.h"
 #include "prayerTimes.h"
@@ -41,7 +42,9 @@ void handle_signal(int sig) {
 int main(int argc, char *argv[]) {
   signal(SIGINT, handle_signal);
   signal(SIGTERM, handle_signal);
+  init_logger();
   PrayerTimes *prayerTimes = read_config();
+
   if (prayerTimes == NULL) {
     return 1;
   }
@@ -51,32 +54,26 @@ int main(int argc, char *argv[]) {
   int parse_status;
   if ((parse_status = parse_inputs(prayerTimes, argc, argv)) != 0) {
     free(prayerTimes);
-    return parse_status - 1;
+    return parse_status == -1;
   }
 
   struct tm times_dates[TIMEID_TimesCount];
   double times[TIMEID_TimesCount];
   struct tm *date;
-  TimeID timeid;
 
   update_times(prayerTimes, times_dates, times);
 
-  // Another instance is running
   if (check_temp_file()) {
-    fprintf(stderr, "another instance is running\n");
+    log_msg(LOGLEVEL_ERROR, "Another instance is running\n");
     return 1;
   }
 
   while (running) {
     prayerTimes->time = time(NULL);
-
-    for (timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount && running;
-         timeid++) {
-      if (timeid ==
-          TIMEID_Sunset)  // Just don't want to hear the timeid of sunset
-                          // as it substitute the maghrib timeid.
-        continue;
-      int dtime = timelocal(&times_dates[timeid]) - prayerTimes->time;
+    for (TimeID timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount; ++timeid) {
+      if (!running) break;
+      if (timeid == TIMEID_Sunset) continue;
+      time_t dtime = timelocal(&times_dates[timeid]) - prayerTimes->time;
       if (dtime > 0) {
         write_current(times_dates, timeid);
         while (dtime > 0 && running) dtime = sleep(dtime);
@@ -99,4 +96,5 @@ int main(int argc, char *argv[]) {
   free(prayerTimes);
   prayerTimes = NULL;
   close_current_writer();
+  return 0;
 }

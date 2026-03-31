@@ -6,12 +6,13 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "logger.h"
 
 void send_notification(TimeID current_time) {
   NotifyNotification *notif;
 
   if (!notify_init(NOTIFICATION_NAME)) {
-    fprintf(stderr, "failed to init libnotify\n");
+    log_msg(LOGLEVEL_ERROR, "failed to init libnotify\n");
     exit(1);
   }
 
@@ -31,7 +32,7 @@ void send_notification(TimeID current_time) {
   }
 
   if (!notify_notification_show(notif, NULL)) {
-    fprintf(stderr, "failed to show notification!\n");
+    log_msg(LOGLEVEL_ERROR, "failed to show notification!\n");
     exit(1);
   }
 

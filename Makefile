@@ -3,7 +3,7 @@
 all: CFLAGS+=-g -DDebug
 all: $(MAIN)
 
-release: CFLAGS+=-s -O3
+release: CFLAGS+=-s -O2
 release: $(MAIN)
 
 $(MAIN): $(OBJ_FILES)

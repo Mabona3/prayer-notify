@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 
 #include "config.h"
+#include "logger.h"
 #include "prayerTimes.h"
 
 int close_current_writer() {
@@ -19,6 +20,7 @@ int close_current_writer() {
 }
 
 int write_current(struct tm *times, int current) {
+  log_msg(LOGLEVEL_DEBUG, "Writing current json file\n");
   char *temp_file;
   if (get_temp_file(&temp_file)) {
     return EXIT_FAILURE;
@@ -27,6 +29,7 @@ int write_current(struct tm *times, int current) {
   char *temp_write = malloc(sizeof(char) * (strlen(temp_file) + 5));
   sprintf(temp_write, "%s.tmp", temp_file);
 
+  free(temp_file);
   FILE *file = fopen(temp_write, "w");
   if (file == NULL) {
     return EXIT_FAILURE;
@@ -49,21 +52,24 @@ int write_current(struct tm *times, int current) {
   fclose(file);
 
   if (rename(temp_write, temp_file)) {
+    free(temp_write);
     return EXIT_FAILURE;
   }
 
+  free(temp_write);
   return EXIT_SUCCESS;
 }
 
 bool check_temp_file() {
   char *temp_file;
   if (get_temp_file(&temp_file)) {
-    fputs("Error retreiving the temp file\n", stderr);
+    log_msg(LOGLEVEL_ERROR, "Error retreiving the temp file\n");
     return true;
   }
 
   struct stat file_stat;
   if (!stat(temp_file, &file_stat)) {
+    log_msg(LOGLEVEL_DEBUG, "Temp file found another instance is running\n");
     return true;
   }
 

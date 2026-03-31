@@ -27,17 +27,17 @@
 // location is the field in PrayerTimes struct that should be retrieved
 // tmp is a tmp cJson that holds the retrieved from the cjson.
 // name is the name of the field that should be retrieved from the struct
-#define JSON_RETRIEVE_DOUBLE(jsondata, json, location, tmp, name) \
-  do {                                                            \
-    jsondata->location = NAN;                                     \
-    tmp = cJSON_GetObjectItemCaseSensitive(json, name);           \
-    if (cJSON_IsNumber(tmp)) {                                    \
-      jsondata->location = tmp->valuedouble;                      \
-    } else {                                                      \
-      JSON_RETURN_WITH_ERROR(                                     \
-          jsondata, json, file, name,                             \
-          "Error parsing config file '%s'\nInvalid type\n");      \
-    }                                                             \
+#define JSON_RETRIEVE_DOUBLE(jsondata, json, location, tmp, name)      \
+  do {                                                                 \
+    jsondata->location = NAN;                                          \
+    tmp                = cJSON_GetObjectItemCaseSensitive(json, name); \
+    if (cJSON_IsNumber(tmp)) {                                         \
+      jsondata->location = tmp->valuedouble;                           \
+    } else {                                                           \
+      JSON_RETURN_WITH_ERROR(                                          \
+          jsondata, json, file, name,                                  \
+          "Error parsing config file '%s'\nInvalid type\n");           \
+    }                                                                  \
   } while (0)
 
 // PrayerTimes is the struct type that holds the data
@@ -49,7 +49,7 @@
 #define JSON_RETRIEVE_ENUM_ARRAY(jsondata, json, location, tmp, arr, type, \
                                  name)                                     \
   do {                                                                     \
-    tmp = cJSON_GetObjectItemCaseSensitive(json, name);                    \
+    tmp                = cJSON_GetObjectItemCaseSensitive(json, name);     \
     jsondata->location = (type)ARRAY_SIZE(arr);                            \
     if (cJSON_IsString(tmp)) {                                             \
       for (unsigned int i = 0; i < ARRAY_SIZE(arr); ++i) {                 \
@@ -95,7 +95,9 @@ PrayerTimes *read_config() {
   }
 
   if (!(file = fopen(config_file, "r"))) {
-    return (build_default_config(jsondata, config_file) != 0) ? NULL : jsondata;
+    int ret = build_default_config(jsondata, config_file);
+    free(config_file);
+    return (ret != 0) ? NULL : jsondata;
   }
 
   fread(buffer, sizeof(*buffer), ARRAY_SIZE(buffer), file);
@@ -158,6 +160,7 @@ PrayerTimes *read_config() {
   // delete the JSON object
   cJSON_Delete(json);
   fclose(file);
+  free(config_file);
   return jsondata;
 }
 
