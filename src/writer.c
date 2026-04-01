@@ -1,5 +1,6 @@
 #include "writer.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,10 +27,10 @@ int write_current(struct tm *times, int current) {
     return EXIT_FAILURE;
   }
 
-  char *temp_write = malloc(sizeof(char) * (strlen(temp_file) + 5));
+  char *temp_write =
+      malloc(sizeof(char) * (strlen(temp_file) + strlen(".tmp") + 1));
   sprintf(temp_write, "%s.tmp", temp_file);
 
-  free(temp_file);
   FILE *file = fopen(temp_write, "w");
   if (file == NULL) {
     return EXIT_FAILURE;
@@ -48,15 +49,31 @@ int write_current(struct tm *times, int current) {
 
   snprintf(buffer + count, buffer_size - count, "\"}");
 
-  fputs(buffer, file);
-  fclose(file);
-
-  if (rename(temp_write, temp_file)) {
+  if (fputs(buffer, file) == EOF) {
+    log_msg(LOGLEVEL_ERROR, "Error writing to the file '%s': %s\n", temp_write,
+            strerror(errno));
     free(temp_write);
     return EXIT_FAILURE;
   }
 
+  if (fclose(file) == EOF) {
+    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
+            strerror(errno));
+    free(temp_write);
+    return EXIT_FAILURE;
+  }
+
+  log_msg(LOGLEVEL_DEBUG, "Renaming '%s' into '%s'\n", temp_write, temp_file);
+  if (rename(temp_write, temp_file) == -1) {
+    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
+            strerror(errno));
+    free(temp_write);
+    free(temp_file);
+    return EXIT_FAILURE;
+  }
+
   free(temp_write);
+  free(temp_file);
   return EXIT_SUCCESS;
 }
 
