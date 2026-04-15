@@ -10,7 +10,10 @@ typedef enum {
   LOGLEVEL_ERROR,
 } LogLevel;
 
-void log_msg(LogLevel level, const char *fmt, ...);
+#define log_msg(level, fmt, ...) \
+  _log_msg(level, fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+
+void _log_msg(LogLevel level, const char *fmt, const char *file, int line, ...);
 void set_log_level(LogLevel level);
 void set_log_file(FILE *file);
 void init_logger();

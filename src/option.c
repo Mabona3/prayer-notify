@@ -26,6 +26,7 @@ static int handle_array_options(const char *option_name,
                                 const char *method_array[],
                                 unsigned int method_count, const char *arg,
                                 unsigned int *result);
+
 static int handle_double_option(int argc, int *i, char *argv[], double *value,
                                 const char *option_name);
 
@@ -295,7 +296,7 @@ void print_debug_help(PrayerTimes *prayerTimes) {
       "%lf)\nCalculation Method: %s\nJuristic Method: %s\nAdjustment "
       "Method: %s\n",
       t->tm_mday, t->tm_mon + 1, t->tm_year + 1900, t->tm_hour, t->tm_min,
-      t->tm_sec, config_file, prayerTimes->longitude, prayerTimes->latitude,
+      t->tm_sec, config_file, prayerTimes->latitude, prayerTimes->longitude,
       Calculation[prayerTimes->calc_method],
       Juristic[prayerTimes->asr_juristic],
       Adjusting[prayerTimes->adjust_high_lats]);

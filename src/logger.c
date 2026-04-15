@@ -8,9 +8,10 @@ typedef struct {
   FILE *file;
 } Log;
 
+// I hate doing this but this is life.
 Log logger;
 
-const char *LogName[] = {[LOGLEVEL_DEBUG]  = "DEBUG",
+const char *LogName[] = {[LOGLEVEL_DEBUG] = "DEBUG",
                          [LOGLEVEL_INFO]  = "INFO",
                          [LOGLEVEL_WARN]  = "WARN",
                          [LOGLEVEL_ERROR] = "ERROR"};
@@ -22,19 +23,20 @@ void init_logger() {
   };
 }
 
-void log_msg(LogLevel level, const char *fmt, ...) {
+void _log_msg(LogLevel level, const char *fmt, const char *file, int line,
+              ...) {
   if (logger.log_level > level) {
     return;
   }
 
   va_list ap;
-  va_start(ap, fmt);
-  fprintf(logger.file, "[%s]: ", LogName[level]);
+  va_start(ap, line);
+  fprintf(logger.file, "[%s] %s:%d: ", LogName[level], file, line);
   vfprintf(logger.file, fmt, ap);
   va_end(ap);
 }
 
-void set_log_level(LogLevel level) {
+inline void set_log_level(LogLevel level) {
   if ((logger.log_level == LOGLEVEL_INFO || level == LOGLEVEL_INFO) &&
       logger.log_level != level) {
     fprintf(logger.file, "[INFO] Setting log level into %s\n", LogName[level]);
@@ -45,11 +47,11 @@ void set_log_level(LogLevel level) {
   logger.log_level = level;
 }
 
-void set_log_file(FILE *file) {
+inline void set_log_file(FILE *file) {
   logger.file = file;
 }
 
-void set_log_filename(const char *file) {
+inline void set_log_filename(const char *file) {
   FILE *log_file = fopen(file, "w");
   logger.file    = log_file;
 }

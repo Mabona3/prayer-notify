@@ -4,9 +4,6 @@
 #include "prayerTimes.h"
 
 // Takes the config file and return JsonData.
-PrayerTimes *read_config();
-
-// return the default prayertimes struct
-PrayerTimes *get_default_config();
+int read_config(PrayerTimes *prayerTimes);
 
 #endif  // JSONREADER_H

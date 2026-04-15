@@ -43,17 +43,17 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, handle_signal);
   signal(SIGTERM, handle_signal);
   init_logger();
-  PrayerTimes *prayerTimes = read_config();
+  PrayerTimes prayerTimes = create_prayer_times(
+      CALCULATION_Jafari, JURISTIC_Shafi, ADJUSTING_MidNight, 0);
 
-  if (prayerTimes == NULL) {
-    return 1;
+  if (read_config(&prayerTimes)) {
+    return EXIT_FAILURE;
   }
 
-  prayerTimes->time = time(NULL);
+  prayerTimes.time = time(NULL);
 
   int parse_status;
-  if ((parse_status = parse_inputs(prayerTimes, argc, argv)) != 0) {
-    free(prayerTimes);
+  if ((parse_status = parse_inputs(&prayerTimes, argc, argv)) != 0) {
     return parse_status == -1;
   }
 
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
   double times[TIMEID_TimesCount];
   struct tm *date;
 
-  update_times(prayerTimes, times_dates, times);
+  update_times(&prayerTimes, times_dates, times);
 
   if (check_temp_file()) {
     log_msg(LOGLEVEL_ERROR, "Another instance is running\n");
@@ -69,32 +69,30 @@ int main(int argc, char *argv[]) {
   }
 
   while (running) {
-    prayerTimes->time = time(NULL);
+    prayerTimes.time = time(NULL);
     for (TimeID timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount; ++timeid) {
       if (!running) break;
       if (timeid == TIMEID_Sunset) continue;
-      time_t dtime = timelocal(&times_dates[timeid]) - prayerTimes->time;
+      time_t dtime = timelocal(&times_dates[timeid]) - prayerTimes.time;
       if (dtime > 0) {
         write_current(times_dates, timeid);
         while (dtime > 0 && running) dtime = sleep(dtime);
 
         if (running) send_notification(timeid);
       }
-      prayerTimes->time = time(NULL);
+      prayerTimes.time = time(NULL);
     }
-    date = localtime(&prayerTimes->time);
+    date = localtime(&prayerTimes.time);
     time_add_day(date);
 
-    prayerTimes->time = mktime(date);
-    update_times(prayerTimes, times_dates, times);
+    prayerTimes.time = mktime(date);
+    update_times(&prayerTimes, times_dates, times);
     write_current(times_dates, TIMEID_Fajr);
 
-    int dtime = difftime(mktime(date), prayerTimes->time);
+    int dtime = difftime(mktime(date), prayerTimes.time);
     while (dtime > 0 && running) dtime = sleep(dtime);
   }
 
-  free(prayerTimes);
-  prayerTimes = NULL;
   close_current_writer();
   return 0;
 }

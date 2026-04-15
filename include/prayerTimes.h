@@ -208,13 +208,18 @@ MethodConfig create_method_config(double fajr_angle, bool maghrib_is_minutes,
                                   double maghrib_value, bool isha_is_minutes,
                                   double isha_value);
 
+PrayerTimes create_prayer_times(CalculationMethod calc_method,
+                                JuristicMethod asr_juristic,
+                                AdjustingMethod adjust_high_lats,
+                                double dhuhr_minutes);
+
 /*
  * Creating the prayer times instance to caluclate the time
  * */
-PrayerTimes *create_prayer_times(CalculationMethod calc_method,
-                                 JuristicMethod asr_juristic,
-                                 AdjustingMethod adjust_high_lats,
-                                 double dhuhr_minutes);
+PrayerTimes *create_new_prayer_times(CalculationMethod calc_method,
+                                     JuristicMethod asr_juristic,
+                                     AdjustingMethod adjust_high_lats,
+                                     double dhuhr_minutes);
 
 void get_prayer_times_date(PrayerTimes *prayerTimes, int year, int month,
                            int day, double latitude, double longitude,

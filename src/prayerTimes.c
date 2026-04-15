@@ -5,19 +5,54 @@
 
 #include "timeHandle.h"
 
-MethodConfig create_method_config(double fajr_angle, bool maghrib_is_minutes,
-                                  double maghrib_value, bool isha_is_minutes,
-                                  double isha_value) {
+inline MethodConfig create_method_config(double fajr_angle,
+                                         bool maghrib_is_minutes,
+                                         double maghrib_value,
+                                         bool isha_is_minutes,
+                                         double isha_value) {
   MethodConfig config;
   config = (MethodConfig){fajr_angle, maghrib_is_minutes, maghrib_value,
                           isha_is_minutes, isha_value};
   return config;
 }
 
-PrayerTimes *create_prayer_times(CalculationMethod calc_method,
-                                 JuristicMethod asr_juristic,
-                                 AdjustingMethod adjust_high_lats,
-                                 double dhuhr_minutes) {
+inline PrayerTimes create_prayer_times(CalculationMethod calc_method,
+                                       JuristicMethod asr_juristic,
+                                       AdjustingMethod adjust_high_lats,
+                                       double dhuhr_minutes) {
+  PrayerTimes prayerTimes;
+
+  prayerTimes = (PrayerTimes){
+      .calc_method  = calc_method,   // caculation method
+      .asr_juristic = asr_juristic,  // Juristic method for Asr
+      .adjust_high_lats =
+          adjust_high_lats,            // adjusting method for higher latitudes
+      .dhuhr_minutes = dhuhr_minutes,  // minutes after mid-day for Dhuhr
+  };
+
+  // Actual Constants
+  prayerTimes.method_params[CALCULATION_Jafari] =
+      create_method_config(16.0, false, 4.0, false, 14.0);  // Jafari
+  prayerTimes.method_params[CALCULATION_Karachi] =
+      create_method_config(18.0, true, 0.0, false, 18.0);  // Karachi
+  prayerTimes.method_params[CALCULATION_ISNA] =
+      create_method_config(15.0, true, 0.0, false, 15.0);  // ISNA
+  prayerTimes.method_params[CALCULATION_MWL] =
+      create_method_config(18.0, true, 0.0, false, 17.0);  // MWL
+  prayerTimes.method_params[CALCULATION_Makkah] =
+      create_method_config(19.0, true, 0.0, true, 90.0);  // Makkah
+  prayerTimes.method_params[CALCULATION_Egypt] =
+      create_method_config(19.5, true, 0.0, false, 17.5);  // Egypt
+  prayerTimes.method_params[CALCULATION_Custom] =
+      create_method_config(18.0, true, 0.0, false, 17.0);  // Custom
+
+  return prayerTimes;
+}
+
+PrayerTimes *create_new_prayer_times(CalculationMethod calc_method,
+                                     JuristicMethod asr_juristic,
+                                     AdjustingMethod adjust_high_lats,
+                                     double dhuhr_minutes) {
   PrayerTimes *prayerTimes = malloc(sizeof(PrayerTimes));
 
   *prayerTimes = (PrayerTimes){

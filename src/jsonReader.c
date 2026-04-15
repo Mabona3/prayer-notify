@@ -1,5 +1,6 @@
 #include "jsonReader.h"
 
+#include <assert.h>
 #include <cjson/cJSON.h>
 #include <errno.h>
 #include <math.h>
@@ -8,6 +9,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "logger.h"
 #include "prayerTimes.h"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -15,11 +17,11 @@
 
 #define JSON_RETURN_WITH_ERROR(jsondata, json, file, name, error_string) \
   do {                                                                   \
-    fprintf(stderr, error_string, name);                                 \
+    log_msg(LOGLEVEL_ERROR, error_string, name);                         \
     cJSON_Delete(json);                                                  \
     fclose(file);                                                        \
     free(jsondata);                                                      \
-    return NULL;                                                         \
+    return -1;                                                           \
   } while (0)
 
 // PrayerTimes is the struct type that holds the data
@@ -70,34 +72,29 @@
     }                                                                      \
   } while (0)
 
-PrayerTimes *get_default_config() {
-  PrayerTimes *data = create_prayer_times(CALCULATION_Jafari, JURISTIC_Shafi,
-                                          ADJUSTING_MidNight, 0);
-  return data;
-}
-
 // Construct the config to carry the default config based on the PrayerTimes.
 // the config_file is assumed to be in .config and has a parent dir that could
 // be not found so when failing the parent dir will be created and then the file
 // will be created
 int build_default_config(PrayerTimes *data, const char *config_file);
 
-PrayerTimes *read_config() {
-  PrayerTimes *jsondata = get_default_config();
-  if (jsondata == NULL) {
-    return NULL;
+int read_config(PrayerTimes *prayerTimes) {
+  assert(prayerTimes);
+  if (prayerTimes == NULL) {
+    return -1;
   }
   char buffer[BUFFER_SIZE];
   FILE *file;
   char *config_file;
   if (get_config_file(&config_file)) {
-    return NULL;
+    log_msg(LOGLEVEL_ERROR, "Error getting the config file.");
+    return -1;
   }
 
   if (!(file = fopen(config_file, "r"))) {
-    int ret = build_default_config(jsondata, config_file);
+    int ret = build_default_config(prayerTimes, config_file);
     free(config_file);
-    return (ret != 0) ? NULL : jsondata;
+    return (ret != 0) ? -1 : 0;
   }
 
   fread(buffer, sizeof(*buffer), ARRAY_SIZE(buffer), file);
@@ -108,67 +105,69 @@ PrayerTimes *read_config() {
     if (error_ptr != NULL) {
       printf("Error: %s\n", error_ptr);
     }
-    free(jsondata);
     cJSON_Delete(json);
-    return NULL;
+    return -1;
   }
   cJSON *tmp;
 
-  JSON_RETRIEVE_ENUM_ARRAY(jsondata, json, asr_juristic, tmp, Juristic,
+  JSON_RETRIEVE_ENUM_ARRAY(prayerTimes, json, asr_juristic, tmp, Juristic,
                            JuristicMethod, "Juristic");
-  JSON_RETRIEVE_ENUM_ARRAY(jsondata, json, adjust_high_lats, tmp, Adjusting,
+  JSON_RETRIEVE_ENUM_ARRAY(prayerTimes, json, adjust_high_lats, tmp, Adjusting,
                            AdjustingMethod, "Adjusting");
-  JSON_RETRIEVE_ENUM_ARRAY(jsondata, json, calc_method, tmp, Calculation,
+  JSON_RETRIEVE_ENUM_ARRAY(prayerTimes, json, calc_method, tmp, Calculation,
                            CalculationMethod, "Calculation");
-  if (strcmp(Calculation[jsondata->calc_method], "Custom") == 0) {
-    JSON_RETRIEVE_DOUBLE(jsondata, json,
+  if (strcmp(Calculation[prayerTimes->calc_method], "Custom") == 0) {
+    JSON_RETRIEVE_DOUBLE(prayerTimes, json,
                          method_params[CALCULATION_Custom].fajr_angle, tmp,
                          "fajr_angle");
-    set_fajr_angle(jsondata,
-                   jsondata->method_params[CALCULATION_Custom].fajr_angle);
-    JSON_RETRIEVE_DOUBLE(jsondata, json,
+    set_fajr_angle(prayerTimes,
+                   prayerTimes->method_params[CALCULATION_Custom].fajr_angle);
+    JSON_RETRIEVE_DOUBLE(prayerTimes, json,
                          method_params[CALCULATION_Custom].isha_value, tmp,
                          "isha_angle");
-    if (jsondata->method_params[CALCULATION_Custom].isha_value != 0) {
-      set_isha_angle(jsondata,
-                     jsondata->method_params[CALCULATION_Custom].isha_value);
+    if (prayerTimes->method_params[CALCULATION_Custom].isha_value != 0) {
+      set_isha_angle(prayerTimes,
+                     prayerTimes->method_params[CALCULATION_Custom].isha_value);
     } else {
-      JSON_RETRIEVE_DOUBLE(jsondata, json,
+      JSON_RETRIEVE_DOUBLE(prayerTimes, json,
                            method_params[CALCULATION_Custom].isha_value, tmp,
                            "isha_minutes");
-      set_isha_minutes(jsondata,
-                       jsondata->method_params[CALCULATION_Custom].isha_value);
+      set_isha_minutes(
+          prayerTimes,
+          prayerTimes->method_params[CALCULATION_Custom].isha_value);
     }
-    JSON_RETRIEVE_DOUBLE(jsondata, json,
+    JSON_RETRIEVE_DOUBLE(prayerTimes, json,
                          method_params[CALCULATION_Custom].maghrib_value, tmp,
                          "maghrib_angle");
-    if (jsondata->method_params[CALCULATION_Custom].maghrib_value != 0) {
+    if (prayerTimes->method_params[CALCULATION_Custom].maghrib_value != 0) {
       set_maghrib_angle(
-          jsondata, jsondata->method_params[CALCULATION_Custom].maghrib_value);
+          prayerTimes,
+          prayerTimes->method_params[CALCULATION_Custom].maghrib_value);
     } else {
-      JSON_RETRIEVE_DOUBLE(jsondata, json,
+      JSON_RETRIEVE_DOUBLE(prayerTimes, json,
                            method_params[CALCULATION_Custom].maghrib_value, tmp,
                            "maghrib_minutes");
       set_maghrib_minutes(
-          jsondata, jsondata->method_params[CALCULATION_Custom].isha_value);
+          prayerTimes,
+          prayerTimes->method_params[CALCULATION_Custom].isha_value);
     }
   }
-  JSON_RETRIEVE_DOUBLE(jsondata, json, longitude, tmp, "lng");
-  JSON_RETRIEVE_DOUBLE(jsondata, json, latitude, tmp, "lat");
-  JSON_RETRIEVE_DOUBLE(jsondata, json, dhuhr_minutes, tmp, "dhuhr_minutes");
+  JSON_RETRIEVE_DOUBLE(prayerTimes, json, longitude, tmp, "lng");
+  JSON_RETRIEVE_DOUBLE(prayerTimes, json, latitude, tmp, "lat");
+  JSON_RETRIEVE_DOUBLE(prayerTimes, json, dhuhr_minutes, tmp, "dhuhr_minutes");
 
   // delete the JSON object
   cJSON_Delete(json);
   fclose(file);
   free(config_file);
-  return jsondata;
+  return 0;
 }
 
 int build_default_config(PrayerTimes *data, const char *config_file) {
   char buffer[BUFFER_SIZE];
   FILE *file = fopen(config_file, "w");
   if (!file) {
-    fprintf(stderr, "Could not create file '%s': %s\n", config_file,
+    log_msg(LOGLEVEL_ERROR, "Could not create file '%s': %s\n", config_file,
             strerror(errno));
     return -1;
   }
@@ -192,15 +191,10 @@ int build_default_config(PrayerTimes *data, const char *config_file) {
       Calculation[data->calc_method], Adjusting[data->adjust_high_lats],
       data->dhuhr_minutes, 0.f, 0.f, 0.f, 0.f, 0.f);
 
-  if (written < 0 || (size_t)written >= sizeof(buffer)) {
-    fprintf(stderr, "Config buffer overflow or encoding error\n");
-    fclose(file);
-    return -1;
-  }
-
-  if (fwrite(buffer, 1, written, file) != (size_t)written) {
-    fprintf(stderr, "Failed to write config file '%s': %s\n", config_file,
-            strerror(errno));
+  if (written < 0 || (size_t)written >= sizeof(buffer) ||
+      (fwrite(buffer, 1, written, file) != (size_t)written)) {
+    log_msg(LOGLEVEL_ERROR, "Failed to write the config file '%s': %s\n",
+            config_file, strerror(errno));
     fclose(file);
     return -1;
   }
