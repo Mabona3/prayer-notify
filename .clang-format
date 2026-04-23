@@ -6,4 +6,3 @@ AllowShortFunctionsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
 PointerAlignment: Right
-AlignConsecutiveAssignments: Consecutive

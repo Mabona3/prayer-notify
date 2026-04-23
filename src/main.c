@@ -36,7 +36,7 @@ static volatile sig_atomic_t running = 1;
 // handler for resetting the flag to exit the main func loop
 void handle_signal(int sig) {
   (void)sig;
-  running = 0;
+  exit(0);
 }
 
 int main(int argc, char *argv[]) {
@@ -57,16 +57,17 @@ int main(int argc, char *argv[]) {
     return parse_status == -1;
   }
 
+  if (check_temp_file()) {
+    log_msg(LOGLEVEL_ERROR, "Another instance is running\n");
+    return 1;
+  }
+
   struct tm times_dates[TIMEID_TimesCount];
   double times[TIMEID_TimesCount];
   struct tm *date;
 
   update_times(&prayerTimes, times_dates, times);
-
-  if (check_temp_file()) {
-    log_msg(LOGLEVEL_ERROR, "Another instance is running\n");
-    return 1;
-  }
+  atexit(close_current_writer);
 
   while (running) {
     prayerTimes.time = time(NULL);
@@ -74,6 +75,8 @@ int main(int argc, char *argv[]) {
       if (!running) break;
       if (timeid == TIMEID_Sunset) continue;
       time_t dtime = timelocal(&times_dates[timeid]) - prayerTimes.time;
+      log_msg(LOGLEVEL_INFO, "%s is from %d seconds\n", TimeName[timeid],
+              dtime);
       if (dtime > 0) {
         write_current(times_dates, timeid);
         while (dtime > 0 && running) dtime = sleep(dtime);
@@ -87,12 +90,7 @@ int main(int argc, char *argv[]) {
 
     prayerTimes.time = mktime(date);
     update_times(&prayerTimes, times_dates, times);
-    write_current(times_dates, TIMEID_Fajr);
-
-    int dtime = difftime(mktime(date), prayerTimes.time);
-    while (dtime > 0 && running) dtime = sleep(dtime);
   }
 
-  close_current_writer();
   return 0;
 }

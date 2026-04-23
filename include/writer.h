@@ -12,6 +12,6 @@ bool check_temp_file();
 int write_current(struct tm *times, int current);
 
 // delete and remove the cache from the temp file
-int close_current_writer();
+void close_current_writer();
 
 #endif  // !JSONWRITER_H

@@ -10,14 +10,15 @@
 #include "logger.h"
 #include "prayerTimes.h"
 
-int close_current_writer() {
+void close_current_writer() {
   char *temp_file;
   if (get_temp_file(&temp_file) || remove(temp_file) != EXIT_SUCCESS) {
-    return EXIT_FAILURE;
+    return;
   }
+  log_msg(LOGLEVEL_DEBUG, "file %s removed successfully", temp_file);
 
   free(temp_file);
-  return 0;
+  return;
 }
 
 int write_current(struct tm *times, int current) {

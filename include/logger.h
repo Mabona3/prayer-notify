@@ -1,8 +1,6 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <stdio.h>
-
 typedef enum {
   LOGLEVEL_DEBUG,
   LOGLEVEL_INFO,
@@ -15,8 +13,6 @@ typedef enum {
 
 void _log_msg(LogLevel level, const char *fmt, const char *file, int line, ...);
 void set_log_level(LogLevel level);
-void set_log_file(FILE *file);
 void init_logger();
-void set_log_filename(const char *file);
 
 #endif  // !LOGGER_H

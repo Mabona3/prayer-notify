@@ -69,10 +69,6 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
         log_msg(LOGLEVEL_ERROR, "Unknown level %s\n", argv[i]);
         return -1;
       }
-    } else if (!(strcmp(argv[i], "--log-file") && strcmp(argv[i], "-f"))) {
-      ++i;
-      VALUE_REQUIRED(i, argc, argv[i - 1]);
-      set_log_filename(argv[i]);
     } else if (!(strcmp(argv[i], "--previous") && strcmp(argv[i], "-p"))) {
       print_previous_prayer(prayerTimes);
       return 1;
@@ -271,7 +267,6 @@ int print_help(const char *arg) {
     printf(
         "Logging Options:\n"
         "    -l, --log-level <arg>          Selecting logging level\n"
-        "    -f, --log-file <arg>          Setting the log file\n"
         "\n"
         "Log Level Options: \n"
         "    Info           \n"

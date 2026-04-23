@@ -66,6 +66,7 @@ inline void time_add_day(struct tm *date) {
   date->tm_hour = 0;
   date->tm_min = 0;
   date->tm_sec = 0;
+  date->tm_isdst = -1;
 }
 
 /* remove one day to the struct used in the midtime handler. */
