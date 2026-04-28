@@ -14,7 +14,7 @@ PKG_LIBS:=$(shell pkg-config --libs $(PKG_DEPS))
 INC_FLAGS=-Iinclude $(PKG_LIBS)
 LIBS=-lm -lcjson $(PKG_LIBS)
 
-CFLAGS=-Wall -Wextra -Wpedantic -DAPP_VERSION=\"$(VERSION)\" -Wno-unused-variable $(PKG_FLAGS)
+CFLAGS=-Wall -Wextra -Wpedantic -DAPP_VERSION=\"$(VERSION)\" -Wno-unused-variable $(PKG_FLAGS) -DDAEMON_SYSTEMD
 
 SRC_FILES=$(shell find $(SRC_DIR) -name '*.c')
 OBJ_FILES=$(SRC_FILES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)

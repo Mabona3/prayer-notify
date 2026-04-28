@@ -20,3 +20,4 @@
 -I/usr/include/libmount 
 -I/usr/include/blkid 
 -I/usr/include/sysprof-6 
+-DDAEMON_SYSTEMD

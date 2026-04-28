@@ -60,16 +60,17 @@ int main(int argc, char *argv[]) {
 
   // just incase maybe later when I switch out of systemd when the age
   // verifications really kick in.
-  if (0) {
-    int pid = fork();
-    if (pid == 0) {
-      // child
-      pid = fork();
-      if (pid == 0) main_func(&prayerTimes);
-    }
-  } else {
-    main_func(&prayerTimes);
+  // TODO: Add this to for building constants.
+#ifndef DAEMON_SYSTEMD
+  int pid = fork();
+  if (pid == 0) {
+    // child
+    pid = fork();
+    if (pid == 0) main_func(&prayerTimes);
   }
+#else
+  main_func(&prayerTimes);
+#endif
 
   return 0;
 }
