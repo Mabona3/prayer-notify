@@ -19,19 +19,13 @@
 
 #include <signal.h>
 #include <stdlib.h>
-#include <time.h>
 #include <unistd.h>
 
+#include "daemon.h"
 #include "jsonReader.h"
 #include "logger.h"
-#include "notify.h"
 #include "option.h"
-#include "prayerTimes.h"
-#include "timeHandle.h"
 #include "writer.h"
-
-// flag to exit with sigint and sigterm
-static volatile sig_atomic_t running = 1;
 
 // handler for resetting the flag to exit the main func loop
 void handle_signal(int sig) {
@@ -62,34 +56,19 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  struct tm times_dates[TIMEID_TimesCount];
-  double times[TIMEID_TimesCount];
-  struct tm *date;
-
-  update_times(&prayerTimes, times_dates, times);
   atexit(close_current_writer);
 
-  while (running) {
-    prayerTimes.time = time(NULL);
-    for (TimeID timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount; ++timeid) {
-      if (!running) break;
-      if (timeid == TIMEID_Sunset) continue;
-      time_t dtime = timelocal(&times_dates[timeid]) - prayerTimes.time;
-      log_msg(LOGLEVEL_INFO, "%s is from %d seconds\n", TimeName[timeid],
-              dtime);
-      if (dtime > 0) {
-        write_current(times_dates, timeid);
-        while (dtime > 0 && running) dtime = sleep(dtime);
-
-        if (running) send_notification(timeid);
-      }
-      prayerTimes.time = time(NULL);
+  // just incase maybe later when I switch out of systemd when the age
+  // verifications really kick in.
+  if (0) {
+    int pid = fork();
+    if (pid == 0) {
+      // child
+      pid = fork();
+      if (pid == 0) main_func(&prayerTimes);
     }
-    date = localtime(&prayerTimes.time);
-    time_add_day(date);
-
-    prayerTimes.time = mktime(date);
-    update_times(&prayerTimes, times_dates, times);
+  } else {
+    main_func(&prayerTimes);
   }
 
   return 0;
