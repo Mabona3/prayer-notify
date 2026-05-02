@@ -39,12 +39,10 @@ static void print_previous_prayer(PrayerTimes *prayerTimes);
 int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
   for (int i = 1; i < argc; i++) {
     if (!(strcmp(argv[i], "--help") && strcmp(argv[i], "-h"))) {
-      if (i + 1 == argc || argv[i + 1][0] == '-') {
+      if (i + 1 == argc || argv[i + 1][0] == '-')
         return print_help(NULL);
-      } else {
-        ++i;
-        return print_help(argv[i]);
-      }
+      else
+        return print_help(argv[++i]);
     } else if (!(strcmp(argv[i], "--option") && strcmp(argv[i], "-o"))) {
       print_debug_help(prayerTimes);
       return 1;
@@ -298,13 +296,12 @@ void print_debug_help(PrayerTimes *prayerTimes) {
 }
 
 void print_next_prayer(PrayerTimes *prayerTimes) {
-  double times[TIMEID_TimesCount];
-  get_prayer_times_time(prayerTimes, prayerTimes->latitude,
-                        prayerTimes->longitude, prayerTimes->timezone, times);
-
-  struct tm *date = localtime(&prayerTimes->time);
-
   struct tm times_dates[TIMEID_TimesCount];
+  double times[TIMEID_TimesCount];
+  struct tm *date;
+  update_times(prayerTimes, times_dates, times);
+
+  date = localtime(&prayerTimes->time);
 
   for (TimeID timeid = 0; timeid < TIMEID_TimesCount; timeid++) {
     times_dates[timeid]        = *date;
@@ -346,8 +343,7 @@ void print_all_prayers(PrayerTimes *prayerTimes) {
   double times[TIMEID_TimesCount];
   struct tm times_dates[TIMEID_TimesCount];
 
-  get_prayer_times_time(prayerTimes, prayerTimes->latitude,
-                        prayerTimes->longitude, prayerTimes->timezone, times);
+  update_times(prayerTimes, times_dates, times);
 
   struct tm *date = localtime(&prayerTimes->time);
   for (TimeID timeid = 0; timeid < TIMEID_TimesCount; ++timeid) {
@@ -361,12 +357,14 @@ void print_all_prayers(PrayerTimes *prayerTimes) {
 }
 
 void print_previous_prayer(PrayerTimes *prayerTimes) {
-  double times[TIMEID_TimesCount];
-  get_prayer_times_time(prayerTimes, prayerTimes->latitude,
-                        prayerTimes->longitude, prayerTimes->timezone, times);
-
   struct tm times_dates[TIMEID_TimesCount];
-  struct tm *date = localtime(&prayerTimes->time);
+  double times[TIMEID_TimesCount];
+  struct tm *date;
+
+  update_times(prayerTimes, times_dates, times);
+
+  date = localtime(&prayerTimes->time);
+
   for (TimeID timeid = TIMEID_TimesCount - 1; timeid > 0; timeid--) {
     times_dates[timeid]        = *date;
     times_dates[timeid].tm_sec = 0;
@@ -387,8 +385,9 @@ void print_previous_prayer(PrayerTimes *prayerTimes) {
   time_sub_day(date);
   PrayerTimes temp = *prayerTimes;
   temp.time        = mktime(date);
-  get_prayer_times_time(&temp, temp.latitude, temp.longitude, temp.timezone,
-                        times);
+
+  update_times(prayerTimes, times_dates, times);
+
   times_dates[TIMEID_Isha] = *date;
   get_float_time_parts(times[TIMEID_Isha], &times_dates[TIMEID_Isha].tm_hour,
                        &times_dates[TIMEID_Isha].tm_min);
