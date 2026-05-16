@@ -24,6 +24,7 @@
 #include "daemon.h"
 #include "jsonReader.h"
 #include "logger.h"
+#include "notify.h"
 #include "option.h"
 #include "writer.h"
 
@@ -57,6 +58,10 @@ int main(int argc, char *argv[]) {
   }
 
   atexit(close_current_writer);
+
+  init_notify();
+
+  atexit(deinit_notify);
 
   // just incase maybe later when I switch out of systemd when the age
   // verifications really kick in.
