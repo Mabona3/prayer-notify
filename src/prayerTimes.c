@@ -5,24 +5,39 @@
 
 #include "timeHandle.h"
 
+/*********************************************/
+static double dsin(double d);
+/* degree cos */
+static double dcos(double d);
+/* degree tan */
+static double dtan(double d);
+/* degree arcsin */
+static double darcsin(double x);
+/* degree arccos */
+static double darccos(double x);
+/* degree arctan2 */
+static double darctan2(double y, double x);
+/* degree arccot */
+static double darccot(double x);
+/* degree to radian */
+static double deg2rad(double d);
+/* radian to degree */
+static double rad2deg(double r);
+
 inline MethodConfig create_method_config(double fajr_angle,
                                          bool maghrib_is_minutes,
                                          double maghrib_value,
                                          bool isha_is_minutes,
                                          double isha_value) {
-  MethodConfig config;
-  config = (MethodConfig){fajr_angle, maghrib_is_minutes, maghrib_value,
-                          isha_is_minutes, isha_value};
-  return config;
+  return (MethodConfig){fajr_angle, maghrib_is_minutes, maghrib_value,
+                        isha_is_minutes, isha_value};
 }
 
 inline PrayerTimes create_prayer_times(CalculationMethod calc_method,
                                        JuristicMethod asr_juristic,
                                        AdjustingMethod adjust_high_lats,
                                        double dhuhr_minutes) {
-  PrayerTimes prayerTimes;
-
-  prayerTimes = (PrayerTimes){
+  PrayerTimes prayerTimes = (PrayerTimes){
       .calc_method  = calc_method,   // caculation method
       .asr_juristic = asr_juristic,  // Juristic method for Asr
       .adjust_high_lats =
@@ -140,10 +155,8 @@ double get_julian_date(int year, int month, int day) {
          b - 1524.5;
 }
 
-double compute_mid_day(PrayerTimes *prayerTimes, double _t) {
-  double t = equation_of_time(prayerTimes->julian_date + _t);
-  double z = fix_hour(12 - t);
-  return z;
+static inline double compute_mid_day(PrayerTimes *prayerTimes, double t) {
+  return fix_hour(12 - equation_of_time(prayerTimes->julian_date + t));
 }
 
 /* compute time for a given angle G */
@@ -331,43 +344,30 @@ Position sun_position(double jd) {
   return (Position){dd, eq_t};
 }
 
-/* degree sin */
 inline double dsin(double d) {
   return sin(deg2rad(d));
 }
-/* degree cos */
 inline double dcos(double d) {
   return cos(deg2rad(d));
 }
-/* degree tan */
 inline double dtan(double d) {
   return tan(deg2rad(d));
 }
-/* degree arcsin */
 inline double darcsin(double x) {
   return rad2deg(asin(x));
 }
-/* degree arccos */
 inline double darccos(double x) {
   return rad2deg(acos(x));
 }
-/* degree arctan */
-inline double darctan(double x) {
-  return rad2deg(atan(x));
-}
-/* degree arctan2 */
 inline double darctan2(double y, double x) {
   return rad2deg(atan2(y, x));
 }
-/* degree arccot */
 inline double darccot(double x) {
   return rad2deg(atan(1.0 / x));
 }
-/* degree to radian */
 inline double deg2rad(double d) {
   return d * M_PI / 180.0;
 }
-/* radian to degree */
 inline double rad2deg(double r) {
   return r * 180.0 / M_PI;
 }

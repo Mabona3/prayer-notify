@@ -49,36 +49,6 @@ http://code.ebrahim.ir/prayertimes/
 /* compute declination angle of sun */
 #define sun_declination(jd) sun_position(jd).lng
 
-/* degree sin */
-double dsin(double d);
-
-/* degree cos */
-double dcos(double d);
-
-/* degree tan */
-double dtan(double d);
-
-/* degree arcsin */
-double darcsin(double x);
-
-/* degree arccos */
-double darccos(double x);
-
-/* degree arctan */
-double darctan(double x);
-
-/* degree arctan2 */
-double darctan2(double y, double x);
-
-/* degree arccot */
-double darccot(double x);
-
-/* degree to radian */
-double deg2rad(double d);
-
-/* radian to degree */
-double rad2deg(double r);
-
 typedef struct {
   double lng;
   double lat;
@@ -241,9 +211,6 @@ double fix_angle(double a);
 
 /* compute declination angle of sun and equation of time */
 Position sun_position(double jd);
-
-/* compute mid-day (Dhuhr, Zawal) time */
-double compute_mid_day(PrayerTimes *prayerTimes, double g);
 
 /* compute time for a given angle G */
 double compute_time(PrayerTimes *prayerTimes, double g, double t);
