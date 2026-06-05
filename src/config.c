@@ -15,11 +15,15 @@ const char *TEMP_FILE   = "prayer-notify.json";
 // Creating the parent dir of the config file if the parent dir is not found. it
 // returns 0 on success otherwise it will return 1.
 int create_parent_dir(const char *config_file) {
-  char *config_dup = strdup(config_file);
+  if (!config_file) return 1;
+
+  int len          = strlen(config_file);
+  char *config_dup = malloc(sizeof(char) * (len + 1));
   if (!config_dup) {
     log_msg(LOGLEVEL_ERROR, "Memory allocation failed\n");
     return 1;
   }
+  strcpy(config_dup, config_file);
 
   char *config_dir = dirname(config_dup);
   struct stat st;
@@ -47,7 +51,9 @@ int get_temp_file(char **temp_dir) {
   if (default_temp != NULL) {
     log_msg(LOGLEVEL_DEBUG, "'PRAYER_NOTIFY_TEMP' found as '%s'\n",
             default_temp);
-    *temp_dir = strdup(default_temp);
+    int len   = strlen(default_temp);
+    *temp_dir = malloc(sizeof(char) * (len + 1));
+    strcpy(*temp_dir, default_temp);
     if (!*temp_dir) {
       log_msg(LOGLEVEL_ERROR, "Memory allocation failed\n");
       return -1;
@@ -71,7 +77,7 @@ int get_temp_file(char **temp_dir) {
     return -1;
   }
 
-  sprintf(*temp_dir, "%s/%s", default_temp, TEMP_FILE);
+  snprintf(*temp_dir, len, "%s/%s", default_temp, TEMP_FILE);
   log_msg(LOGLEVEL_DEBUG, "Setting the temp file info '%s'\n", *temp_dir);
   return 0;
 }
@@ -82,16 +88,18 @@ int get_config_dir_child(const char *file_name, char **output) {
     return -1;
   }
 
-  char *config_dir        = strdup(config_file);
+  int config_file_len = strlen(config_file) + 1;
+  char *config_dir    = malloc(sizeof(char) * config_file_len);
+  strcpy(config_dir, config_file);
   char *parent_config_dir = dirname(config_dir);
   size_t len              = strlen(parent_config_dir) + strlen(file_name) + 1;
   *output                 = malloc(sizeof(char) * len);
-  sprintf(*output, "%s/%s", parent_config_dir, file_name);
+  snprintf(*output, len, "%s/%s", parent_config_dir, file_name);
   free(config_dir);
   struct stat buf;
   if (stat(*output, &buf) == -1) {
     free(*output);
-    output = NULL;
+    *output = NULL;
     return -1;
   }
   return 0;
@@ -109,7 +117,9 @@ int get_config_file(char **config_file) {
   log_msg(LOGLEVEL_DEBUG, "Searching the PRAYER_NOTIFY_CONFIG env");
   char *default_home = getenv("PRAYER_NOTIFY_CONFIG");
   if (default_home != NULL) {
-    *config_file = strdup(default_home);
+    int len      = strlen(default_home);
+    *config_file = malloc(sizeof(char) * (len + 1));
+    strcpy(*config_file, default_home);
     if (!*config_file) {
       log_msg(LOGLEVEL_ERROR, "Memory allocation failed\n");
       return -1;

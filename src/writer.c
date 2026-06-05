@@ -11,7 +11,7 @@
 #include "prayerTimes.h"
 
 void close_current_writer() {
-  char *temp_file;
+  char *temp_file = NULL;
   if (get_temp_file(&temp_file) || remove(temp_file) != EXIT_SUCCESS) {
     return;
   }
@@ -23,14 +23,14 @@ void close_current_writer() {
 
 int write_current(struct tm *times, int current) {
   log_msg(LOGLEVEL_DEBUG, "Writing current json file\n");
-  char *temp_file;
+  char *temp_file = NULL;
   if (get_temp_file(&temp_file)) {
     return EXIT_FAILURE;
   }
 
-  char *temp_write =
-      malloc(sizeof(char) * (strlen(temp_file) + strlen(".tmp") + 1));
-  sprintf(temp_write, "%s.tmp", temp_file);
+  size_t len       = strlen(temp_file) + strlen(".tmp") + 1;
+  char *temp_write = malloc(sizeof(char) * len);
+  snprintf(temp_write, len, "%s.tmp", temp_file);
 
   FILE *file = fopen(temp_write, "w");
   if (file == NULL) {
@@ -79,7 +79,7 @@ int write_current(struct tm *times, int current) {
 }
 
 bool check_temp_file() {
-  char *temp_file;
+  char *temp_file = NULL;
   if (get_temp_file(&temp_file)) {
     log_msg(LOGLEVEL_ERROR, "Error retreiving the temp file\n");
     return true;
@@ -91,5 +91,6 @@ bool check_temp_file() {
     return true;
   }
 
+  free(temp_file);
   return false;
 }

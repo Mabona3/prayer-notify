@@ -97,7 +97,13 @@ int read_config(PrayerTimes *prayerTimes) {
     return (ret != 0) ? -1 : 0;
   }
 
-  fread(buffer, sizeof(*buffer), ARRAY_SIZE(buffer), file);
+  if (fread(buffer, sizeof(*buffer), ARRAY_SIZE(buffer), file) == 0) {
+    if (!feof(file)) {
+      fclose(file);
+      free(config_file);
+      return -1;
+    }
+  }
   cJSON *json = cJSON_Parse(buffer);
 
   if (json == NULL) {
@@ -106,6 +112,8 @@ int read_config(PrayerTimes *prayerTimes) {
       printf("Error: %s\n", error_ptr);
     }
     cJSON_Delete(json);
+    fclose(file);
+    free(config_file);
     return -1;
   }
   cJSON *tmp;
@@ -153,7 +161,27 @@ int read_config(PrayerTimes *prayerTimes) {
     }
   }
   JSON_RETRIEVE_DOUBLE(prayerTimes, json, longitude, tmp, "lng");
+  if (prayerTimes->longitude > 180.0 || prayerTimes->longitude < -180.0) {
+    log_msg(LOGLEVEL_ERROR,
+            "Error parsing longitude: '%lf' is not valid\n",
+            prayerTimes->longitude);
+    cJSON_Delete(json);
+    fclose(file);
+    free(prayerTimes);
+    return -1;
+  }
+
   JSON_RETRIEVE_DOUBLE(prayerTimes, json, latitude, tmp, "lat");
+  if (prayerTimes->latitude > 90.0 || prayerTimes->latitude < -90.0) {
+    log_msg(LOGLEVEL_ERROR,
+            "Error parsing latitude: '%lf' is not valid\n",
+            prayerTimes->latitude);
+    cJSON_Delete(json);
+    fclose(file);
+    free(prayerTimes);
+    return -1;
+  }
+
   JSON_RETRIEVE_DOUBLE(prayerTimes, json, dhuhr_minutes, tmp, "dhuhr_minutes");
 
   // delete the JSON object

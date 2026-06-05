@@ -21,3 +21,4 @@
 -I/usr/include/blkid 
 -I/usr/include/sysprof-6 
 -DDAEMON_SYSTEMD
+-std=c11

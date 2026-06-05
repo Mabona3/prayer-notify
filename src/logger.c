@@ -14,15 +14,15 @@ void init_logger() {
   log_level = LOGLEVEL_ERROR;
 }
 
-void _log_msg(LogLevel level, const char *fmt, const char *file, int line,
+void _log_msg(LogLevel level, const char *file, int line, const char *fmt,
               ...) {
   if (log_level > level) {
     return;
   }
 
   va_list ap;
-  va_start(ap, line);
-  fprintf((level >= LOGLEVEL_WARN) ? stdout : stderr,
+  va_start(ap, fmt);
+  fprintf((level >= LOGLEVEL_WARN) ? stderr : stdout,
           "[%s] %s:%d: ", LogName[level], file, line);
   vfprintf((level >= LOGLEVEL_WARN) ? stdout : stderr, fmt, ap);
   va_end(ap);

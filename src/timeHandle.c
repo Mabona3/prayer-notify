@@ -23,25 +23,25 @@ void update_times(PrayerTimes *prayerTimes, struct tm *times_dates,
 /* convert float hours to 24h format */
 void float_time_to_time24(double time, char *time24) {
   if (isnan(time)) {
-    sprintf(time24, "NAN");
+    snprintf(time24, 4, "NAN");
     return;
   }
   int hours, minutes;
   get_float_time_parts(time, &hours, &minutes);
-  sprintf(time24, "%2.2d:%2.2d", hours, minutes);
+  snprintf(time24, 6, "%2.2d:%2.2d", hours, minutes);
 }
 
 void float_time_to_time12(double time, bool no_suffix, char *time12) {
   if (isnan(time)) {
-    sprintf(time12, "NAN");
+    snprintf(time12, 4, "NAN");
     return;
   }
 
   int hours, minutes;
   get_float_time_parts(time, &hours, &minutes);
-  const char *suffix = hours >= 12 ? " PM" : " AM";
+  const char *suffix = hours >= 12 ? "PM" : "AM";
   hours              = (hours + 12 - 1) % 12 + 1;
-  sprintf(time12, "%d:%2.2d%s", hours, minutes, no_suffix ? suffix : "");
+  snprintf(time12, 9, "%d:%2.2d %s", hours, minutes, no_suffix ? suffix : "");
 }
 
 void get_float_time_parts(double time, int *hours, int *minutes) {

@@ -1,6 +1,5 @@
 #include "notify.h"
 
-#include <libnotify/notification.h>
 #include <libnotify/notify.h>
 #include <stdio.h>
 #include <stdlib.h>

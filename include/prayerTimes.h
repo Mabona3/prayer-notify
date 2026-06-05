@@ -191,6 +191,8 @@ PrayerTimes *create_new_prayer_times(CalculationMethod calc_method,
                                      AdjustingMethod adjust_high_lats,
                                      double dhuhr_minutes);
 
+void free_prayer_times(PrayerTimes *prayerTimes);
+
 void get_prayer_times_date(PrayerTimes *prayerTimes, int year, int month,
                            int day, double latitude, double longitude,
                            double timezone, double times[]);
