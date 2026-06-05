@@ -53,11 +53,11 @@ int get_temp_file(char **temp_dir) {
             default_temp);
     int len   = strlen(default_temp);
     *temp_dir = malloc(sizeof(char) * (len + 1));
-    strcpy(*temp_dir, default_temp);
     if (!*temp_dir) {
       log_msg(LOGLEVEL_ERROR, "Memory allocation failed\n");
       return -1;
     }
+    strcpy(*temp_dir, default_temp);
 
     return 0;
   }
@@ -90,12 +90,23 @@ int get_config_dir_child(const char *file_name, char **output) {
 
   int config_file_len = strlen(config_file) + 1;
   char *config_dir    = malloc(sizeof(char) * config_file_len);
+  if (config_dir == NULL) {
+    free(config_dir);
+    log_msg(LOGLEVEL_ERROR, "Memory allocation failed\n");
+    return -1;
+  }
   strcpy(config_dir, config_file);
+  free(config_file);
   char *parent_config_dir = dirname(config_dir);
   size_t len              = strlen(parent_config_dir) + strlen(file_name) + 1;
   *output                 = malloc(sizeof(char) * len);
+  if (*output == NULL) {
+    free(config_dir);
+    return -1;
+  }
   snprintf(*output, len, "%s/%s", parent_config_dir, file_name);
   free(config_dir);
+
   struct stat buf;
   if (stat(*output, &buf) == -1) {
     free(*output);

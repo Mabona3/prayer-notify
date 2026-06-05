@@ -54,6 +54,7 @@ int write_current(struct tm *times, int current) {
     log_msg(LOGLEVEL_ERROR, "Error writing to the file '%s': %s\n", temp_write,
             strerror(errno));
     free(temp_write);
+    free(temp_file);
     return EXIT_FAILURE;
   }
 
@@ -61,6 +62,7 @@ int write_current(struct tm *times, int current) {
     log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
             strerror(errno));
     free(temp_write);
+    free(temp_file);
     return EXIT_FAILURE;
   }
 
