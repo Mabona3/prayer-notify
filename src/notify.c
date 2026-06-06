@@ -9,7 +9,7 @@
 
 void init_notify() {
   if (!notify_init(NOTIFICATION_NAME)) {
-    log_msg(LOGLEVEL_ERROR, "failed to init libnotify\n");
+    log_msg(LOGLEVEL_ERROR, "failed to init libnotify");
     exit(1);
   }
 }
@@ -27,10 +27,10 @@ void send_notification(TimeID current_time) {
 
   notif = notify_notification_new("Prayer Times", notif_name, icon);
 
-  log_msg(LOGLEVEL_DEBUG, "notifying for %s\n", TimeName[current_time]);
+  log_msg(LOGLEVEL_DEBUG, "notifying for %s", TimeName[current_time]);
 
   if (!notify_notification_show(notif, NULL)) {
-    log_msg(LOGLEVEL_ERROR, "failed to show notification!\n");
+    log_msg(LOGLEVEL_ERROR, "failed to show notification!");
     exit(1);
   }
 

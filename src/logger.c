@@ -20,11 +20,13 @@ void _log_msg(LogLevel level, const char *file, int line, const char *fmt,
     return;
   }
 
+  FILE *stream = (level >= LOGLEVEL_WARN) ? stderr : stdout;
+
   va_list ap;
   va_start(ap, fmt);
-  fprintf((level >= LOGLEVEL_WARN) ? stderr : stdout,
-          "[%s] %s:%d: ", LogName[level], file, line);
-  vfprintf((level >= LOGLEVEL_WARN) ? stdout : stderr, fmt, ap);
+  fprintf(stream, "[%s] %s:%d: ", LogName[level], file, line);
+  vfprintf(stream, fmt, ap);
+  fprintf(stream, "\n");
   va_end(ap);
 }
 
@@ -33,7 +35,7 @@ inline void set_log_level(LogLevel level) {
       log_level != level) {
     fprintf(stdout, "[INFO] Setting log level into %s\n", LogName[level]);
   } else if (level > LOGLEVEL_ERROR) {
-    log_msg(LOGLEVEL_ERROR, "Unknown log level '%d'\n", level);
+    log_msg(LOGLEVEL_ERROR, "Unknown log level '%d'", level);
   }
 
   log_level = level;

@@ -162,8 +162,7 @@ int read_config(PrayerTimes *prayerTimes) {
   }
   JSON_RETRIEVE_DOUBLE(prayerTimes, json, longitude, tmp, "lng");
   if (prayerTimes->longitude > 180.0 || prayerTimes->longitude < -180.0) {
-    log_msg(LOGLEVEL_ERROR,
-            "Error parsing longitude: '%lf' is not valid\n",
+    log_msg(LOGLEVEL_ERROR, "Error parsing longitude: '%lf' is not valid\n",
             prayerTimes->longitude);
     cJSON_Delete(json);
     fclose(file);
@@ -173,8 +172,7 @@ int read_config(PrayerTimes *prayerTimes) {
 
   JSON_RETRIEVE_DOUBLE(prayerTimes, json, latitude, tmp, "lat");
   if (prayerTimes->latitude > 90.0 || prayerTimes->latitude < -90.0) {
-    log_msg(LOGLEVEL_ERROR,
-            "Error parsing latitude: '%lf' is not valid\n",
+    log_msg(LOGLEVEL_ERROR, "Error parsing latitude: '%lf' is not valid\n",
             prayerTimes->latitude);
     cJSON_Delete(json);
     fclose(file);
@@ -195,7 +193,7 @@ int build_default_config(PrayerTimes *data, const char *config_file) {
   char buffer[BUFFER_SIZE];
   FILE *file = fopen(config_file, "w");
   if (!file) {
-    log_msg(LOGLEVEL_ERROR, "Could not create file '%s': %s\n", config_file,
+    log_msg(LOGLEVEL_ERROR, "Could not create file '%s': %s", config_file,
             strerror(errno));
     return -1;
   }
@@ -221,7 +219,7 @@ int build_default_config(PrayerTimes *data, const char *config_file) {
 
   if (written < 0 || (size_t)written >= sizeof(buffer) ||
       (fwrite(buffer, 1, written, file) != (size_t)written)) {
-    log_msg(LOGLEVEL_ERROR, "Failed to write the config file '%s': %s\n",
+    log_msg(LOGLEVEL_ERROR, "Failed to write the config file '%s': %s",
             config_file, strerror(errno));
     fclose(file);
     return -1;

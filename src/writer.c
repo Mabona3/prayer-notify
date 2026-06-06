@@ -22,7 +22,7 @@ void close_current_writer() {
 }
 
 int write_current(struct tm *times, int current) {
-  log_msg(LOGLEVEL_DEBUG, "Writing current json file\n");
+  log_msg(LOGLEVEL_DEBUG, "Writing current json file");
   char *temp_file = NULL;
   if (get_temp_file(&temp_file)) {
     return EXIT_FAILURE;
@@ -51,7 +51,7 @@ int write_current(struct tm *times, int current) {
   snprintf(buffer + count, buffer_size - count, "\"}");
 
   if (fputs(buffer, file) == EOF) {
-    log_msg(LOGLEVEL_ERROR, "Error writing to the file '%s': %s\n", temp_write,
+    log_msg(LOGLEVEL_ERROR, "Error writing to the file '%s': %s", temp_write,
             strerror(errno));
     free(temp_write);
     free(temp_file);
@@ -59,16 +59,16 @@ int write_current(struct tm *times, int current) {
   }
 
   if (fclose(file) == EOF) {
-    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
+    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s", temp_write,
             strerror(errno));
     free(temp_write);
     free(temp_file);
     return EXIT_FAILURE;
   }
 
-  log_msg(LOGLEVEL_DEBUG, "Renaming '%s' into '%s'\n", temp_write, temp_file);
+  log_msg(LOGLEVEL_DEBUG, "Renaming '%s' into '%s'", temp_write, temp_file);
   if (rename(temp_write, temp_file) == -1) {
-    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
+    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s", temp_write,
             strerror(errno));
     free(temp_write);
     free(temp_file);
@@ -83,13 +83,13 @@ int write_current(struct tm *times, int current) {
 bool check_temp_file() {
   char *temp_file = NULL;
   if (get_temp_file(&temp_file)) {
-    log_msg(LOGLEVEL_ERROR, "Error retreiving the temp file\n");
+    log_msg(LOGLEVEL_ERROR, "Error retreiving the temp file");
     return true;
   }
 
   struct stat file_stat;
   if (!stat(temp_file, &file_stat)) {
-    log_msg(LOGLEVEL_DEBUG, "Temp file found another instance is running\n");
+    log_msg(LOGLEVEL_DEBUG, "Temp file found another instance is running");
     return true;
   }
 

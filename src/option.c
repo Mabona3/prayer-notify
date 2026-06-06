@@ -1,6 +1,7 @@
 #include "option.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -13,13 +14,12 @@
 #define PROG_NAME_FRIENDLY "prayer-notify"
 #define PROG_NAME "prayer-notify"
 
-#define VALUE_REQUIRED(i, narg, name)                                  \
-  do                                                                   \
-    if ((i) >= (narg)) {                                               \
-      log_msg(LOGLEVEL_ERROR, "Error: option '%s' requires a value\n", \
-              (name));                                                 \
-      return -1;                                                       \
-    }                                                                  \
+#define VALUE_REQUIRED(i, narg, name)                                         \
+  do                                                                          \
+    if ((i) >= (narg)) {                                                      \
+      log_msg(LOGLEVEL_ERROR, "Error: option '%s' requires a value", (name)); \
+      return -1;                                                              \
+    }                                                                         \
   while (0)
 
 static int handle_array_options(const char *option_name,
@@ -64,7 +64,7 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
       } else if (!strcmp(argv[i], "Error")) {
         set_log_level(LOGLEVEL_ERROR);
       } else {
-        log_msg(LOGLEVEL_ERROR, "Unknown level %s\n", argv[i]);
+        log_msg(LOGLEVEL_ERROR, "Unknown level %s", argv[i]);
         return -1;
       }
     } else if (!(strcmp(argv[i], "--previous") && strcmp(argv[i], "-p"))) {
@@ -79,8 +79,7 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
       VALUE_REQUIRED(i, argc, argv[i - 1]);
       if (sscanf(argv[i], "%d:%d", &new_date->tm_hour, &new_date->tm_min) !=
           2) {
-        log_msg(LOGLEVEL_ERROR, "Error: Failed to parse '%s' as time\n",
-                argv[i]);
+        log_msg(LOGLEVEL_ERROR, "Error: Failed to parse '%s' as time", argv[i]);
         return -1;
       }
 
@@ -92,8 +91,7 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
       VALUE_REQUIRED(i, argc, argv[i - 1]);
       if (sscanf(argv[i], "%d-%d-%d", &new_date->tm_mday, &new_date->tm_mon,
                  &new_date->tm_year) != 3) {
-        log_msg(LOGLEVEL_ERROR, "Error: Failed to parse '%s' as date\n",
-                argv[i]);
+        log_msg(LOGLEVEL_ERROR, "Error: Failed to parse '%s' as date", argv[i]);
         return -1;
       }
 
@@ -145,7 +143,7 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
 int handle_array_options(const char *option_name, const char *method_array[],
                          unsigned int method_count, const char *arg,
                          unsigned int *result) {
-  log_msg(LOGLEVEL_DEBUG, "Handling %s with arg %s\n", option_name, arg);
+  log_msg(LOGLEVEL_DEBUG, "Handling %s with arg %s", option_name, arg);
   *result = method_count;
   for (unsigned int i = 0; i < method_count; i++) {
     if (strcmp(arg, method_array[i]) == 0) {
@@ -155,7 +153,7 @@ int handle_array_options(const char *option_name, const char *method_array[],
   }
 
   if (*result == method_count) {
-    log_msg(LOGLEVEL_ERROR, "Invalid option %s for %s\n", arg, option_name);
+    log_msg(LOGLEVEL_ERROR, "Invalid option %s for %s", arg, option_name);
     return 1;
   }
   return 0;
@@ -166,8 +164,8 @@ int handle_double_option(int argc, int *i, char *argv[], double *value,
   ++(*i);
   VALUE_REQUIRED((*i), argc, option_name);
   if (sscanf(argv[*i], "%lf", value) != 1) {
-    log_msg(LOGLEVEL_ERROR, "Error: Invalid value for '%s': '%s'\n",
-            option_name, argv[*i]);
+    log_msg(LOGLEVEL_ERROR, "Error: Invalid value for '%s': '%s'", option_name,
+            argv[*i]);
     return -1;
   }
   return 0;
@@ -272,7 +270,7 @@ int print_help(const char *arg) {
         "    Error          \n");
     return 1;
   }
-  log_msg(LOGLEVEL_ERROR, "Unknown help Option: %s\n", arg);
+  log_msg(LOGLEVEL_ERROR, "Unknown help Option: %s", arg);
   return -1;
 }
 
@@ -293,6 +291,7 @@ void print_debug_help(PrayerTimes *prayerTimes) {
       Calculation[prayerTimes->calc_method],
       Juristic[prayerTimes->asr_juristic],
       Adjusting[prayerTimes->adjust_high_lats]);
+  free(config_file);
 }
 
 void print_next_prayer(PrayerTimes *prayerTimes) {

@@ -20,8 +20,7 @@ void main_func(PrayerTimes *prayerTimes) {
     for (TimeID timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount; ++timeid) {
       if (timeid == TIMEID_Sunset) continue;
       time_t dtime = mktime(&times_dates[timeid]) - prayerTimes->time;
-      log_msg(LOGLEVEL_INFO, "%s is from %d seconds\n", TimeName[timeid],
-              dtime);
+      log_msg(LOGLEVEL_INFO, "%s is from %d seconds", TimeName[timeid], dtime);
       if (dtime > 0) {
         write_current(times_dates, timeid);
         while (dtime > 0) dtime = sleep(dtime);
