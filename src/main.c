@@ -18,6 +18,7 @@
  */
 
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -28,15 +29,28 @@
 #include "option.h"
 #include "writer.h"
 
+volatile sig_atomic_t running = RUNNING_STATE;
+
 // handler for resetting the flag to exit the main func loop
 void handle_signal(int sig) {
-  (void)sig;
-  exit(0);
+  if (sig == SIGUSR1) {
+    running = RELOAD_STATE;
+  } else {
+    running = EXIT_STATE;
+  }
+#ifndef _POSIX_SOURCE
+  signal(SIGUSR1, handle_signal);
+#endif
 }
 
 int main(int argc, char *argv[]) {
+#ifdef _POSIX_SOURCE
+  struct sigaction act;
+#else
   signal(SIGINT, handle_signal);
   signal(SIGTERM, handle_signal);
+  signal(SIGUSR1, handle_signal);
+#endif
   init_logger();
   PrayerTimes prayerTimes = create_prayer_times(
       CALCULATION_Jafari, JURISTIC_Shafi, ADJUSTING_MidNight, 0);

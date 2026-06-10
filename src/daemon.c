@@ -2,11 +2,14 @@
 
 #include <unistd.h>
 
+#include "jsonReader.h"
 #include "logger.h"
 #include "notify.h"
 #include "prayerTimes.h"
 #include "timeHandle.h"
 #include "writer.h"
+
+extern int running;
 
 void main_func(PrayerTimes *prayerTimes) {
   struct tm times_dates[TIMEID_TimesCount];
@@ -15,24 +18,36 @@ void main_func(PrayerTimes *prayerTimes) {
 
   update_times(prayerTimes, times_dates, times);
 
-  while (1) {
+  while (running != EXIT_STATE) {
     prayerTimes->time = time(NULL);
     for (TimeID timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount; ++timeid) {
       if (timeid == TIMEID_Sunset) continue;
       time_t dtime = mktime(&times_dates[timeid]) - prayerTimes->time;
       log_msg(LOGLEVEL_INFO, "%s is from %d seconds\n", TimeName[timeid],
               dtime);
-      if (dtime > 0) {
+      if (running == RUNNING_STATE && dtime > 0) {
         write_current(times_dates, timeid);
-        while (dtime > 0) dtime = sleep(dtime);
-        send_notification(timeid);
+        while (running == RUNNING_STATE && dtime > 0) dtime = sleep(dtime);
+        if (running == RUNNING_STATE)
+          send_notification(timeid);
+        else
+          break;
       }
       prayerTimes->time = time(NULL);
     }
-    date = localtime(&prayerTimes->time);
-    time_add_day(date);
+    if (running == EXIT_STATE) return;
 
-    prayerTimes->time = mktime(date);
-    update_times(prayerTimes, times_dates, times);
+    if (running == RELOAD_STATE) {
+      prayerTimes->time = time(NULL);
+      read_config(prayerTimes);
+      update_times(prayerTimes, times_dates, times);
+      running = RUNNING_STATE;
+    } else {
+      date = localtime(&prayerTimes->time);
+      time_add_day(date);
+
+      prayerTimes->time = mktime(date);
+      update_times(prayerTimes, times_dates, times);
+    }
   }
 }
