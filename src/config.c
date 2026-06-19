@@ -9,7 +9,7 @@
 
 #include "logger.h"
 
-const char *CONFIG_FILE = "prayer-notify/config.json";
+const char *CONFIG_FILE = "prayer-notify/config.ini";
 const char *TEMP_FILE   = "prayer-notify.json";
 
 // Creating the parent dir of the config file if the parent dir is not found. it

@@ -12,7 +12,7 @@ PKG_FLAGS:=$(shell pkg-config --cflags $(PKG_DEPS))
 PKG_LIBS:=$(shell pkg-config --libs $(PKG_DEPS))
 
 INC_FLAGS=-Iinclude $(PKG_FLAGS)
-LIBS=-lm -lcjson $(PKG_LIBS)
+LIBS=-lm $(PKG_LIBS)
 
 CFLAGS=-Wall -Wextra -Wpedantic -DAPP_VERSION=\"$(VERSION)\" -Wno-unused-variable $(PKG_FLAGS) -DDAEMON_SYSTEMD -std=c11
 

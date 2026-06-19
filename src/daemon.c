@@ -2,7 +2,7 @@
 
 #include <unistd.h>
 
-#include "jsonReader.h"
+#include "configReader.h"
 #include "logger.h"
 #include "notify.h"
 #include "prayerTimes.h"

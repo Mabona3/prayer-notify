@@ -22,8 +22,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "configReader.h"
 #include "daemon.h"
-#include "jsonReader.h"
 #include "logger.h"
 #include "notify.h"
 #include "option.h"
