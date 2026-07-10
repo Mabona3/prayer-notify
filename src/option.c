@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "arena.h"
 #include "config.h"
 #include "logger.h"
 #include "prayerTimes.h"
@@ -278,8 +279,11 @@ int print_help(const char *arg) {
 
 void print_debug_help(PrayerTimes *prayerTimes) {
   struct tm *t = localtime(&prayerTimes->time);
+  ScratchArena scratch;
+  arena_scratch_push(&scratch);
   char *config_file;
-  if (get_config_file(&config_file)) {
+  if (get_config_file(&scratch, &config_file)) {
+    arena_scratch_pop(&scratch);
     return;
   }
   printf(
@@ -293,6 +297,7 @@ void print_debug_help(PrayerTimes *prayerTimes) {
       Calculation[prayerTimes->calc_method],
       Juristic[prayerTimes->asr_juristic],
       Adjusting[prayerTimes->adjust_high_lats]);
+  arena_scratch_pop(&scratch);
 }
 
 void print_next_prayer(PrayerTimes *prayerTimes) {

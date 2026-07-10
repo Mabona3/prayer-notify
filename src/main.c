@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "arena.h"
 #include "daemon.h"
 #include "jsonReader.h"
 #include "logger.h"
@@ -35,9 +36,14 @@ void handle_signal(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+  init_logger();
+  if (arena_create()) {
+    log_msg(LOGLEVEL_ERROR, "mmap() failed\n");
+    exit(1);
+  }
+  atexit(arena_destroy);
   signal(SIGINT, handle_signal);
   signal(SIGTERM, handle_signal);
-  init_logger();
   PrayerTimes prayerTimes = create_prayer_times(
       CALCULATION_Jafari, JURISTIC_Shafi, ADJUSTING_MidNight, 0);
 
@@ -58,9 +64,7 @@ int main(int argc, char *argv[]) {
   }
 
   atexit(close_current_writer);
-
   init_notify();
-
   atexit(deinit_notify);
 
   // just incase maybe later when I switch out of systemd when the age

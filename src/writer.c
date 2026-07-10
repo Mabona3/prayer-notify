@@ -6,34 +6,48 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "arena.h"
 #include "config.h"
 #include "logger.h"
 #include "prayerTimes.h"
 
 void close_current_writer() {
   char *temp_file = NULL;
-  if (get_temp_file(&temp_file) || remove(temp_file) != EXIT_SUCCESS) {
+  ScratchArena scratch;
+  arena_scratch_push(&scratch);
+  if (get_temp_file(&scratch, &temp_file) ||
+      remove(temp_file) != EXIT_SUCCESS) {
+    arena_scratch_pop(&scratch);
     return;
   }
-  log_msg(LOGLEVEL_DEBUG, "file %s removed successfully", temp_file);
 
-  free(temp_file);
+  log_msg(LOGLEVEL_DEBUG, "file %s removed successfully", temp_file);
+  arena_scratch_pop(&scratch);
   return;
 }
 
 int write_current(struct tm *times, int current) {
   log_msg(LOGLEVEL_DEBUG, "Writing current json file\n");
   char *temp_file = NULL;
-  if (get_temp_file(&temp_file)) {
+
+  ScratchArena scratch;
+  arena_scratch_push(&scratch);
+  if (get_temp_file(&scratch, &temp_file)) {
+    arena_scratch_pop(&scratch);
     return EXIT_FAILURE;
   }
 
   size_t len       = strlen(temp_file) + strlen(".tmp") + 1;
-  char *temp_write = malloc(sizeof(char) * len);
+  char *temp_write = arena_push(&scratch, sizeof(char) * len);
+  if (temp_write == NULL) {
+    arena_scratch_pop(&scratch);
+    return EXIT_FAILURE;
+  }
   snprintf(temp_write, len, "%s.tmp", temp_file);
 
   FILE *file = fopen(temp_write, "w");
   if (file == NULL) {
+    arena_scratch_pop(&scratch);
     return EXIT_FAILURE;
   }
 
@@ -53,16 +67,14 @@ int write_current(struct tm *times, int current) {
   if (fputs(buffer, file) == EOF) {
     log_msg(LOGLEVEL_ERROR, "Error writing to the file '%s': %s\n", temp_write,
             strerror(errno));
-    free(temp_write);
-    free(temp_file);
+    arena_scratch_pop(&scratch);
     return EXIT_FAILURE;
   }
 
   if (fclose(file) == EOF) {
     log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
             strerror(errno));
-    free(temp_write);
-    free(temp_file);
+    arena_scratch_pop(&scratch);
     return EXIT_FAILURE;
   }
 
@@ -70,29 +82,31 @@ int write_current(struct tm *times, int current) {
   if (rename(temp_write, temp_file) == -1) {
     log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
             strerror(errno));
-    free(temp_write);
-    free(temp_file);
+    arena_scratch_pop(&scratch);
     return EXIT_FAILURE;
   }
 
-  free(temp_write);
-  free(temp_file);
+  arena_scratch_pop(&scratch);
   return EXIT_SUCCESS;
 }
 
 bool check_temp_file() {
   char *temp_file = NULL;
-  if (get_temp_file(&temp_file)) {
+  ScratchArena scratch;
+  arena_scratch_push(&scratch);
+  if (get_temp_file(&scratch, &temp_file)) {
     log_msg(LOGLEVEL_ERROR, "Error retreiving the temp file\n");
+    arena_scratch_pop(&scratch);
     return true;
   }
 
   struct stat file_stat;
   if (!stat(temp_file, &file_stat)) {
     log_msg(LOGLEVEL_DEBUG, "Temp file found another instance is running\n");
+    arena_scratch_pop(&scratch);
     return true;
   }
 
-  free(temp_file);
+  arena_scratch_pop(&scratch);
   return false;
 }

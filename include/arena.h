@@ -10,18 +10,20 @@
 #define ALIGN_UP_POW2(n, p) \
   (((uint64_t)(n) + ((uint64_t)(p) - 1)) & (~((uint64_t)(p) - 1)))
 
+typedef struct Arena Arena;
+
 typedef struct {
-  uint64_t capacity;
-  uint64_t pos;
-} Arena;
+  Arena *arena;
+  uintptr_t start_address;
+  uint64_t size;
+} ScratchArena;
 
-// Create the Arena
-Arena *arena_create(uint64_t capacity);
-void arena_destroy(Arena *arena);
+int arena_create();
+void arena_destroy();
 
-void *arena_push(Arena *arena, uint64_t size);
-void *arena_pop(Arena *arena, uint64_t size);
-void *arena_pop_to(Arena *arena, uint64_t pos);
-void *arena_clear(Arena *arena);
+void *arena_push(ScratchArena *scratch, uint64_t size);
+
+void arena_scratch_push(ScratchArena *scratch);
+void arena_scratch_pop(ScratchArena *scratch);
 
 #endif  // !ARENA_H

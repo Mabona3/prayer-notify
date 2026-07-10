@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arena.h"
 #include "config.h"
 #include "logger.h"
 #include "prayerTimes.h"
@@ -20,7 +21,7 @@
     log_msg(LOGLEVEL_ERROR, error_string, name);                         \
     cJSON_Delete(json);                                                  \
     fclose(file);                                                        \
-    free(jsondata);                                                      \
+    arena_scratch_pop(&scratch);                                         \
     return -1;                                                           \
   } while (0)
 
@@ -83,24 +84,29 @@ int read_config(PrayerTimes *prayerTimes) {
   if (prayerTimes == NULL) {
     return -1;
   }
+
   char buffer[BUFFER_SIZE];
   FILE *file;
   char *config_file;
-  if (get_config_file(&config_file)) {
-    log_msg(LOGLEVEL_ERROR, "Error getting the config file.");
+
+  ScratchArena scratch;
+  arena_scratch_push(&scratch);
+  if (get_config_file(&scratch, &config_file)) {
+    log_msg(LOGLEVEL_ERROR, "Error getting the config file.\n");
+    arena_scratch_pop(&scratch);
     return -1;
   }
 
   if (!(file = fopen(config_file, "r"))) {
     int ret = build_default_config(prayerTimes, config_file);
-    free(config_file);
+    arena_scratch_pop(&scratch);
     return (ret != 0) ? -1 : 0;
   }
 
   if (fread(buffer, sizeof(*buffer), ARRAY_SIZE(buffer), file) == 0) {
     if (!feof(file)) {
       fclose(file);
-      free(config_file);
+      arena_scratch_pop(&scratch);
       return -1;
     }
   }
@@ -113,7 +119,7 @@ int read_config(PrayerTimes *prayerTimes) {
     }
     cJSON_Delete(json);
     fclose(file);
-    free(config_file);
+    arena_scratch_pop(&scratch);
     return -1;
   }
   cJSON *tmp;
@@ -162,23 +168,21 @@ int read_config(PrayerTimes *prayerTimes) {
   }
   JSON_RETRIEVE_DOUBLE(prayerTimes, json, longitude, tmp, "lng");
   if (prayerTimes->longitude > 180.0 || prayerTimes->longitude < -180.0) {
-    log_msg(LOGLEVEL_ERROR,
-            "Error parsing longitude: '%lf' is not valid\n",
+    log_msg(LOGLEVEL_ERROR, "Error parsing longitude: '%lf' is not valid\n",
             prayerTimes->longitude);
     cJSON_Delete(json);
     fclose(file);
-    free(prayerTimes);
+    arena_scratch_pop(&scratch);
     return -1;
   }
 
   JSON_RETRIEVE_DOUBLE(prayerTimes, json, latitude, tmp, "lat");
   if (prayerTimes->latitude > 90.0 || prayerTimes->latitude < -90.0) {
-    log_msg(LOGLEVEL_ERROR,
-            "Error parsing latitude: '%lf' is not valid\n",
+    log_msg(LOGLEVEL_ERROR, "Error parsing latitude: '%lf' is not valid\n",
             prayerTimes->latitude);
     cJSON_Delete(json);
     fclose(file);
-    free(prayerTimes);
+    arena_scratch_pop(&scratch);
     return -1;
   }
 
@@ -187,7 +191,7 @@ int read_config(PrayerTimes *prayerTimes) {
   // delete the JSON object
   cJSON_Delete(json);
   fclose(file);
-  free(config_file);
+  arena_scratch_pop(&scratch);
   return 0;
 }
 
