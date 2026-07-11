@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <pthread.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -64,22 +65,9 @@ int main(int argc, char *argv[]) {
   }
 
   atexit(close_current_writer);
-  init_notify();
-  atexit(deinit_notify);
-
-  // just incase maybe later when I switch out of systemd when the age
-  // verifications really kick in.
-  // TODO: Add this to for building constants.
-#ifndef DAEMON_SYSTEMD
-  int pid = fork();
-  if (pid == 0) {
-    // child
-    pid = fork();
-    if (pid == 0) main_func(&prayerTimes);
-  }
-#else
+  pthread_t notify_thread;
+  pthread_create(&notify_thread, NULL, send_notification_daemon, NULL);
   main_func(&prayerTimes);
-#endif
 
   return 0;
 }

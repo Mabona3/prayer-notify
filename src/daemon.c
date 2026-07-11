@@ -5,12 +5,12 @@
 #include "arena.h"
 #include "config.h"
 #include "logger.h"
-#include "notify.h"
 #include "prayerTimes.h"
 #include "timeHandle.h"
 #include "writer.h"
 
-void main_func(PrayerTimes *prayerTimes) {
+void *main_func(void *arg) {
+  PrayerTimes *prayerTimes = (PrayerTimes *)arg;
   struct tm times_dates[TIMEID_TimesCount];
   double times[TIMEID_TimesCount];
   struct tm *date;
@@ -32,7 +32,6 @@ void main_func(PrayerTimes *prayerTimes) {
       if (dtime > 0) {
         write_current(times_dates, timeid);
         while (dtime > 0) dtime = sleep(dtime);
-        send_notification(timeid, icon);
       }
       prayerTimes->time = time(NULL);
     }

@@ -1,8 +1,6 @@
 #ifndef DAEMON_H
 #define DAEMON_H
 
-#include "prayerTimes.h"
-
-void main_func(PrayerTimes *prayerTimes);
+void *main_func(void *arg);
 
 #endif  // !DAEMON_H
