@@ -391,7 +391,7 @@ void print_previous_prayer(PrayerTimes *prayerTimes) {
   PrayerTimes temp = *prayerTimes;
   temp.time        = mktime(date);
 
-  update_times(prayerTimes, times_dates, times);
+  update_times(&temp, times_dates, times);
 
   times_dates[TIMEID_Isha] = *date;
   get_float_time_parts(times[TIMEID_Isha], &times_dates[TIMEID_Isha].tm_hour,

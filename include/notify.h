@@ -9,7 +9,7 @@
 void init_notify();
 
 // Send notification using the required prayer time id
-void send_notification(TimeID current_time);
+void send_notification(TimeID current_time, const char *icon);
 
 // deinitialize the gmain context
 void deinit_notify();

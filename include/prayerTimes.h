@@ -43,12 +43,6 @@ http://code.ebrahim.ir/prayertimes/
 #include <stdbool.h>
 #include <time.h>
 
-/* compute equation of time */
-#define equation_of_time(jd) sun_position(jd).lat
-
-/* compute declination angle of sun */
-#define sun_declination(jd) sun_position(jd).lng
-
 typedef struct {
   double lng;
   double lat;

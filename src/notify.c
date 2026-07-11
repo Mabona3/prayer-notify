@@ -4,44 +4,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "arena.h"
-#include "config.h"
 #include "logger.h"
+#include "prayerTimes.h"
+
+static NotifyNotification *notify;
 
 void init_notify() {
   if (!notify_init(NOTIFICATION_NAME)) {
-    log_msg(LOGLEVEL_ERROR, "failed to init libnotify\n");
+    log_msg(LOGLEVEL_ERROR, "failed to init libnotify");
     exit(1);
   }
+  notify = notify_notification_new("Prayer Times", NULL, NULL);
 }
 
-void send_notification(TimeID current_time) {
-  NotifyNotification *notif;
+void send_notification(TimeID current_time, const char *icon) {
   char notif_name[16];
+
+  if (current_time >= TIMEID_TimesCount) {
+    log_msg(LOGLEVEL_ERROR, "TimeID is not recognized!\n");
+    exit(1);
+  }
 
   snprintf(notif_name, sizeof(notif_name), "%s Time", TimeName[current_time]);
 
-  ScratchArena scratch;
-  arena_scratch_push(&scratch);
+  notify_notification_update(notify, "Prayer Times", notif_name, icon);
 
-  char *icon;
-  if (get_icon_file(&scratch, &icon) == EXIT_FAILURE) {
-    icon = NULL;
-  }
-
-  notif = notify_notification_new("Prayer Times", notif_name, icon);
-  arena_scratch_pop(&scratch);
-
-  log_msg(LOGLEVEL_DEBUG, "notifying for %s\n", TimeName[current_time]);
-
-  if (!notify_notification_show(notif, NULL)) {
-    log_msg(LOGLEVEL_ERROR, "failed to show notification!\n");
+  GError *gError;
+  if (!notify_notification_show(notify, &gError)) {
+    log_msg(LOGLEVEL_ERROR, "failed to show notification '%s'",
+            gError->message);
     exit(1);
   }
-
-  g_object_unref(notif);
 }
 
 void deinit_notify() {
+  g_object_unref(notify);
   notify_uninit();
 }

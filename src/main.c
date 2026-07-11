@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (check_temp_file()) {
-    log_msg(LOGLEVEL_ERROR, "Another instance is running\n");
+    log_msg(LOGLEVEL_ERROR, "Another instance is running");
     return 1;
   }
 

@@ -6,8 +6,14 @@
 #include "timeHandle.h"
 
 #ifndef M_PI
-# define M_PI		3.14159265358979323846	/* pi */
+#define M_PI 3.14159265358979323846 /* pi */
 #endif
+
+/* compute equation of time */
+#define equation_of_time(jd) sun_position(jd).lat
+
+/* compute declination angle of sun */
+#define sun_declination(jd) sun_position(jd).lng
 
 /*********************************************/
 static double dsin(double d);
