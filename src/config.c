@@ -149,7 +149,7 @@ int get_config_dir_child(const char *file_name, char **output) {
   strcpy(config_dir, config_file);
   free(config_file);
   char *parent_config_dir = dirname(config_dir);
-  size_t len              = strlen(parent_config_dir) + strlen(file_name) + 1;
+  size_t len              = strlen(parent_config_dir) + strlen(file_name) + 2;
   *output                 = malloc(sizeof(char) * len);
   if (*output == NULL) {
     free(config_dir);
