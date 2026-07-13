@@ -81,6 +81,7 @@ int main(int argc, char *argv[]) {
   atexit(close_current_writer);
   pthread_t notify_thread;
   pthread_create(&notify_thread, NULL, send_notification_daemon, NULL);
+  pthread_detach(notify_thread);
   main_func(&prayerTimes);
 
   return 0;

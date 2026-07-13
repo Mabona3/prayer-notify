@@ -1,19 +1,20 @@
 #include "daemon.h"
 
+#include <pthread.h>
 #include <unistd.h>
 
 #include "arena.h"
 #include "config.h"
 #include "jsonReader.h"
 #include "logger.h"
+#include "notify.h"
 #include "prayerTimes.h"
 #include "timeHandle.h"
 #include "writer.h"
 
 extern int running;
 
-void *main_func(void *arg) {
-  PrayerTimes *prayerTimes = (PrayerTimes *)arg;
+void main_func(PrayerTimes *prayerTimes) {
   struct tm times_dates[TIMEID_TimesCount];
   double times[TIMEID_TimesCount];
   struct tm *date;
@@ -26,24 +27,30 @@ void *main_func(void *arg) {
   char *icon = NULL;
   get_icon_file(&scratch, &icon);
 
+  log_msg(LOGLEVEL_INFO, "acquiring mutex\n");
+  pthread_mutex_lock(&notify_mutex);
   while (running != EXIT_STATE) {
     prayerTimes->time = time(NULL);
-    for (TimeID timeid = TIMEID_Fajr; timeid < TIMEID_TimesCount; ++timeid) {
-      if (timeid == TIMEID_Sunset) continue;
-      time_t dtime = mktime(&times_dates[timeid]) - prayerTimes->time;
-      log_msg(LOGLEVEL_INFO, "%s is from %d seconds\n", TimeName[timeid],
-              dtime);
+    for (notify_current = TIMEID_Fajr; notify_current < TIMEID_TimesCount;
+         ++notify_current) {
+      if (notify_current == TIMEID_Sunset) continue;
+      time_t dtime = mktime(&times_dates[notify_current]) - prayerTimes->time;
+      log_msg(LOGLEVEL_INFO, "%s is from %d seconds\n",
+              TimeName[notify_current], dtime);
       if (running == RUNNING_STATE && dtime > 0) {
-        write_current(times_dates, timeid);
-        while (running == RUNNING_STATE && dtime > 0) dtime = sleep(dtime);
-        if (running == RUNNING_STATE)
-          send_notification(timeid);
-        else
+        write_current(times_dates, notify_current);
+        // while (running == RUNNING_STATE && dtime > 0) dtime = sleep(dtime);
+        if (running == RUNNING_STATE) {
+          pthread_mutex_unlock(&notify_mutex);
+          log_msg(LOGLEVEL_INFO, "waiting for the notification\n");
+          pthread_mutex_lock(&notify_mutex);
+          log_msg(LOGLEVEL_INFO, "notified\n");
+        } else
           break;
       }
       prayerTimes->time = time(NULL);
     }
-    if (running == EXIT_STATE) return NULL;
+    if (running == EXIT_STATE) return;
 
     if (running == RELOAD_STATE) {
       prayerTimes->time = time(NULL);
