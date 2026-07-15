@@ -17,6 +17,8 @@ void close_current_writer() {
   arena_scratch_push(&scratch);
   if (get_temp_file(&scratch, &temp_file) ||
       remove(temp_file) != EXIT_SUCCESS) {
+    log_msg(LOGLEVEL_ERROR, "Error removing %s: '%s'", temp_file,
+            strerror(errno));
     arena_scratch_pop(&scratch);
     return;
   }
@@ -27,7 +29,7 @@ void close_current_writer() {
 }
 
 int write_current(struct tm *times, int current) {
-  log_msg(LOGLEVEL_DEBUG, "Writing current json file\n");
+  log_msg(LOGLEVEL_DEBUG, "Writing current json file");
   char *temp_file = NULL;
 
   ScratchArena scratch;
@@ -65,22 +67,22 @@ int write_current(struct tm *times, int current) {
   snprintf(buffer + count, buffer_size - count, "\"}");
 
   if (fputs(buffer, file) == EOF) {
-    log_msg(LOGLEVEL_ERROR, "Error writing to the file '%s': %s\n", temp_write,
+    log_msg(LOGLEVEL_ERROR, "Error writing to the file '%s': %s", temp_write,
             strerror(errno));
     arena_scratch_pop(&scratch);
     return EXIT_FAILURE;
   }
 
   if (fclose(file) == EOF) {
-    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
+    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s", temp_write,
             strerror(errno));
     arena_scratch_pop(&scratch);
     return EXIT_FAILURE;
   }
 
-  log_msg(LOGLEVEL_DEBUG, "Renaming '%s' into '%s'\n", temp_write, temp_file);
+  log_msg(LOGLEVEL_DEBUG, "Renaming '%s' into '%s'", temp_write, temp_file);
   if (rename(temp_write, temp_file) == -1) {
-    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s\n", temp_write,
+    log_msg(LOGLEVEL_ERROR, "Error closing file '%s': %s", temp_write,
             strerror(errno));
     arena_scratch_pop(&scratch);
     return EXIT_FAILURE;
@@ -95,14 +97,14 @@ bool check_temp_file() {
   ScratchArena scratch;
   arena_scratch_push(&scratch);
   if (get_temp_file(&scratch, &temp_file)) {
-    log_msg(LOGLEVEL_ERROR, "Error retreiving the temp file\n");
+    log_msg(LOGLEVEL_ERROR, "Error retreiving the temp file");
     arena_scratch_pop(&scratch);
     return true;
   }
 
   struct stat file_stat;
   if (!stat(temp_file, &file_stat)) {
-    log_msg(LOGLEVEL_DEBUG, "Temp file found another instance is running\n");
+    log_msg(LOGLEVEL_DEBUG, "Temp file found another instance is running");
     arena_scratch_pop(&scratch);
     return true;
   }
