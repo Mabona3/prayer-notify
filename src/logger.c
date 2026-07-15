@@ -35,7 +35,7 @@ inline void set_log_level(LogLevel level) {
       log_level != level) {
     fprintf(stdout, "[INFO] Setting log level into %s\n", LogName[level]);
   } else if (level > LOGLEVEL_ERROR) {
-    log_msg(LOGLEVEL_ERROR, "Unknown log level '%d'", level);
+    log_msg(LOGLEVEL_ERROR, "Unknown log level '%d'\n", level);
   }
 
   log_level = level;

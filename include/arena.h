@@ -18,7 +18,14 @@ typedef struct {
   uint64_t size;
 } ScratchArena;
 
+/*
+ * mmap the chunk and save it in an internal struct
+ */
 int arena_create();
+
+/*
+ * munmap the chunk and clean the internal struct
+ */
 void arena_destroy();
 
 void *arena_push(ScratchArena *scratch, uint64_t size);

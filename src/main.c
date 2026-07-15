@@ -37,28 +37,25 @@ volatile sig_atomic_t running = RUNNING_STATE;
 void handle_signal(int sig) {
   if (sig == SIGUSR1) {
     running = RELOAD_STATE;
+    log_msg(LOGLEVEL_DEBUG, "Recieved signal 'SIGUSR1' reloading");
   } else {
     running = EXIT_STATE;
+    log_msg(LOGLEVEL_DEBUG, "Recieved signal '%d' exiting", sig);
   }
-#ifndef _POSIX_SOURCE
   signal(SIGUSR1, handle_signal);
-#endif
 }
 
 int main(int argc, char *argv[]) {
-#ifdef _POSIX_SOURCE
-  struct sigaction act;
-#else
   signal(SIGINT, handle_signal);
   signal(SIGTERM, handle_signal);
   signal(SIGUSR1, handle_signal);
-#endif
 
   init_logger();
   if (arena_create()) {
     log_msg(LOGLEVEL_ERROR, "mmap() failed\n");
     exit(1);
   }
+
   PrayerTimes prayerTimes = create_prayer_times(
       CALCULATION_Jafari, JURISTIC_Shafi, ADJUSTING_MidNight, 0);
 
@@ -78,10 +75,14 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  atexit(close_current_writer);
-  pthread_t notify_thread;
-  pthread_create(&notify_thread, NULL, send_notification_daemon, NULL);
+  init_notify();
+
+  atexit(deinit_notify);
+  atexit(arena_destroy);
+
   main_func(&prayerTimes);
+
+  close_current_writer();
 
   return 0;
 }

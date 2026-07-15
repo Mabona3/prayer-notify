@@ -1,7 +1,9 @@
 #ifndef DAEMON_H
 #define DAEMON_H
 
-void *main_func(void *arg);
+#include "prayerTimes.h"
+
+void main_func(PrayerTimes *prayerTimes);
 
 typedef enum {
   EXIT_STATE,
