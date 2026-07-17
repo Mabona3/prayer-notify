@@ -1,15 +1,15 @@
 #ifndef NOTIFY_H
 #define NOTIFY_H
 
-#include "prayerTimes.h"
+#include <pthread.h>
 
 #define NOTIFICATION_NAME "Prayer Times"
 
-// initialize the gmain context
-void init_notify();
+extern pthread_mutex_t notify_mutex;
+extern pthread_cond_t notify_cond;
 
-// Send notification using the required prayer time id
-void send_notification(TimeID current_time, const char *icon);
+// initialize the gmain context
+unsigned long int init_notify(char **icon);
 
 // deinitialize the gmain context
 void deinit_notify();

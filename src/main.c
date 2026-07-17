@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include "arena.h"
+#include "config.h"
 #include "daemon.h"
 #include "jsonReader.h"
 #include "logger.h"
@@ -33,28 +34,22 @@
 
 volatile sig_atomic_t running = RUNNING_STATE;
 
-// handler for resetting the flag to exit the main func loop
-void handle_signal(int sig) {
-  if (sig == SIGUSR1) {
-    running = RELOAD_STATE;
-    log_msg(LOGLEVEL_DEBUG, "Recieved signal 'SIGUSR1' reloading");
-  } else {
-    running = EXIT_STATE;
-    log_msg(LOGLEVEL_DEBUG, "Recieved signal '%d' exiting", sig);
-  }
-  signal(SIGUSR1, handle_signal);
-}
-
 int main(int argc, char *argv[]) {
-  signal(SIGINT, handle_signal);
-  signal(SIGTERM, handle_signal);
-  signal(SIGUSR1, handle_signal);
-
   init_logger();
   if (arena_create()) {
-    log_msg(LOGLEVEL_ERROR, "mmap() failed\n");
+    log_msg(LOGLEVEL_ERROR, "arena_create() failed\n");
     exit(1);
   }
+
+  // block all signals
+  sigset_t set;
+  sigemptyset(&set);
+
+  sigaddset(&set, SIGINT);
+  sigaddset(&set, SIGTERM);
+  sigaddset(&set, SIGUSR1);
+
+  pthread_sigmask(SIG_BLOCK, &set, NULL);
 
   PrayerTimes prayerTimes = create_prayer_times(
       CALCULATION_Jafari, JURISTIC_Shafi, ADJUSTING_MidNight, 0);
@@ -75,14 +70,30 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  init_notify();
+  char *icon = NULL;
+
+  ScratchArena scratch;
+  arena_scratch_push(&scratch);
+
+  if (get_icon_file(&scratch, &icon)) {
+    log_msg(LOGLEVEL_ERROR, "get_icon_file failed!");
+    return 1;
+  }
+
+  pthread_t notify_thread_id = init_notify(&icon);
+  pthread_t daemon_thread_id = daemon_init(&prayerTimes);
+
+  pthread_join(notify_thread_id, NULL);
+  pthread_join(daemon_thread_id, NULL);
 
   atexit(deinit_notify);
   atexit(arena_destroy);
 
-  main_func(&prayerTimes);
+  arena_scratch_pop(&scratch);
 
   close_current_writer();
-
+  log_msg(LOGLEVEL_DEBUG, "Destroying synchronization primitaves...");
+  pthread_mutex_destroy(&notify_mutex);
+  pthread_cond_destroy(&notify_cond);
   return 0;
 }

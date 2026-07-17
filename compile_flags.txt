@@ -21,4 +21,5 @@
 -I/usr/include/blkid 
 -I/usr/include/sysprof-6 
 -DDAEMON_SYSTEMD
+-D_POSIX_C_SOURCE=200809L
 -std=c11
