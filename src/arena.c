@@ -39,7 +39,7 @@ void arena_scratch_push(ScratchArena *scratch) {
 }
 
 void arena_scratch_pop(ScratchArena *scratch) {
-  log_msg(LOGLEVEL_DEBUG, "Removing %lld",
+  log_msg(LOGLEVEL_DEBUG, "Removing %ld",
           scratch->arena->pos - scratch->start_address);
   scratch->arena->pos = scratch->start_address;
 }
@@ -50,7 +50,7 @@ void *arena_push(ScratchArena *scratch, uint64_t size) {
       (uintptr_t)scratch->start_address + scratch->size + newSize) {
     return NULL;
   }
-  log_msg(LOGLEVEL_DEBUG, "Adding new %lld", newSize);
+  log_msg(LOGLEVEL_DEBUG, "Adding new %ld", newSize);
 
   void *data = (void *)(scratch->start_address + scratch->size);
   scratch->size += newSize;

@@ -58,10 +58,10 @@ void *daemon_thread(void *args) {
          ++current_time) {
       if (current_time == TIMEID_Sunset) continue;
       time_t dtime = mktime(&times_dates[current_time]) - prayerTimes->time;
-      log_msg(LOGLEVEL_INFO, "%s: %d seconds", TimeName[current_time], dtime);
+      log_msg(LOGLEVEL_INFO, "%s: %ld seconds", TimeName[current_time], dtime);
 
       if (running == RUNNING_STATE && dtime > 0) {
-        log_msg(LOGLEVEL_DEBUG, "Logging current time %s",
+        log_msg(LOGLEVEL_DEBUG, "Logging current time %s, %ld",
                 TimeName[current_time], dtime);
 
         write_current(times_dates, current_time);
