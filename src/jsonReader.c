@@ -161,7 +161,7 @@ int read_config(PrayerTimes *prayerTimes) {
       JSON_RETRIEVE_DOUBLE(prayerTimes, json,
                            method_params[CALCULATION_Custom].maghrib_value, tmp,
                            "maghrib_minutes");
-      set_maghrib_minutes(
+      set_isha_minutes(
           prayerTimes,
           prayerTimes->method_params[CALCULATION_Custom].isha_value);
     }
