@@ -2,10 +2,10 @@
 #define LOGGER_H
 
 typedef enum {
-  LOGLEVEL_DEBUG,
-  LOGLEVEL_INFO,
-  LOGLEVEL_WARN,
-  LOGLEVEL_ERROR,
+    LOGLEVEL_DEBUG,
+    LOGLEVEL_INFO,
+    LOGLEVEL_WARN,
+    LOGLEVEL_ERROR,
 } LogLevel;
 
 #define log_msg(level, ...) _log_msg(level, __FILE__, __LINE__, __VA_ARGS__)

@@ -6,83 +6,90 @@
 
 void update_times(PrayerTimes *prayerTimes, struct tm *times_dates,
                   double *times) {
-  get_prayer_times_time(prayerTimes, prayerTimes->latitude,
-                        prayerTimes->longitude,
-                        get_effective_timezone_time(prayerTimes->time), times);
+    get_prayer_times_time(
+        prayerTimes, prayerTimes->latitude, prayerTimes->longitude,
+        get_effective_timezone_time(prayerTimes->time), times);
 
-  struct tm *date = localtime(&prayerTimes->time);
+    struct tm *date = localtime(&prayerTimes->time);
 
-  for (int i = 0; i < TIMEID_TimesCount; i++) {
-    times_dates[i]        = *date;
-    times_dates[i].tm_sec = 0;
-    get_float_time_parts(times[i], &times_dates[i].tm_hour,
-                         &times_dates[i].tm_min);
-  }
+    for (int i = 0; i < TIMEID_TimesCount; i++) {
+        times_dates[i] = *date;
+        times_dates[i].tm_sec = 0;
+        get_float_time_parts(times[i], &times_dates[i].tm_hour,
+                             &times_dates[i].tm_min);
+    }
 }
 
 /* convert float hours to 24h format */
 void float_time_to_time24(double time, char *time24) {
-  if (isnan(time)) {
-    snprintf(time24, 4, "NAN");
-    return;
-  }
-  int hours, minutes;
-  get_float_time_parts(time, &hours, &minutes);
-  snprintf(time24, 6, "%2.2d:%2.2d", hours, minutes);
+    if (isnan(time)) {
+        snprintf(time24, 4, "NAN");
+        return;
+    }
+    int hours, minutes;
+    get_float_time_parts(time, &hours, &minutes);
+    snprintf(time24, 6, "%2.2d:%2.2d", hours, minutes);
 }
 
 void float_time_to_time12(double time, bool no_suffix, char *time12) {
-  if (isnan(time)) {
-    snprintf(time12, 4, "NAN");
-    return;
-  }
+    if (isnan(time)) {
+        snprintf(time12, 4, "NAN");
+        return;
+    }
 
-  int hours, minutes;
-  get_float_time_parts(time, &hours, &minutes);
-  const char *suffix = hours >= 12 ? "PM" : "AM";
-  hours              = (hours + 12 - 1) % 12 + 1;
-  snprintf(time12, 9, "%d:%2.2d %s", hours, minutes, no_suffix ? suffix : "");
+    int hours, minutes;
+    get_float_time_parts(time, &hours, &minutes);
+
+    if (hours < 0) {
+        snprintf(time12, 4, "NAN");
+        return;
+    }
+
+    const char *suffix = hours >= 12 ? "PM" : "AM";
+    hours = (hours + 12 - 1) % 12 + 1;
+    snprintf(time12, 9, "%2.2d:%2.2d %s", hours, minutes,
+             no_suffix ? suffix : "");
 }
 
 void get_float_time_parts(double time, int *hours, int *minutes) {
-  time     = fix_hour(time + 0.5 / 60);  // add 0.5 minutes to round
-  *hours   = floor(time);
-  *minutes = floor((time - *hours) * 60);
+    time = fix_hour(time + 0.5 / 60);  // add 0.5 minutes to round
+    *hours = floor(time);
+    *minutes = floor((time - *hours) * 60);
 }
 
 double fix_hour(double a) {
-  a = a - 24.0 * floor(a / 24.0);
-  a = a < 0.0 ? a + 24.0 : a;
-  return a;
+    a = a - 24.0 * floor(a / 24.0);
+    a = a < 0.0 ? a + 24.0 : a;
+    return a;
 }
 
 inline double time_diff(double time1, double time2) {
-  return fix_hour(time2 - time1);
+    return fix_hour(time2 - time1);
 }
 
 inline void time_add_day(struct tm *date) {
-  ++date->tm_mday;
-  mktime(date);
-  date->tm_hour  = 0;
-  date->tm_min   = 0;
-  date->tm_sec   = 0;
-  date->tm_isdst = -1;
+    ++date->tm_mday;
+    mktime(date);
+    date->tm_hour = 0;
+    date->tm_min = 0;
+    date->tm_sec = 0;
+    date->tm_isdst = -1;
 }
 
 /* remove one day to the struct used in the midtime handler. */
 inline void time_sub_day(struct tm *date) {
-  --date->tm_mday;
-  mktime(date);
-  date->tm_hour = 0;
-  date->tm_min  = 0;
-  date->tm_sec  = 0;
+    --date->tm_mday;
+    mktime(date);
+    date->tm_hour = 0;
+    date->tm_min = 0;
+    date->tm_sec = 0;
 }
 
 inline Time convert_time_hms(int time) {
-  Time result;
-  result.hours = time / 3600;
-  time -= result.hours * 3600;
-  result.minutes = time / 60;
-  result.seconds = time - result.minutes * 60;
-  return result;
+    Time result;
+    result.hours = time / 3600;
+    time -= result.hours * 3600;
+    result.minutes = time / 60;
+    result.seconds = time - result.minutes * 60;
+    return result;
 }

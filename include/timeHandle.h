@@ -7,9 +7,9 @@
 #include "prayerTimes.h"
 
 typedef struct {
-  int hours;
-  int minutes;
-  int seconds;
+    int hours;
+    int minutes;
+    int seconds;
 } Time;
 
 /* return the hour and minutes parts of the returned double times[] of

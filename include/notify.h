@@ -1,17 +1,23 @@
 #ifndef NOTIFY_H
 #define NOTIFY_H
 
+#include <glib.h>
+#include <libnotify/notify.h>
 #include <pthread.h>
+
+#include "state_def.h"
 
 #define NOTIFICATION_NAME "Prayer Times"
 
-extern pthread_mutex_t notify_mutex;
-extern pthread_cond_t notify_cond;
-
 // initialize the gmain context
-unsigned long int init_notify(char **icon);
+unsigned long int init_notify(AppContext *app_context);
+
+void send_notification(NotificationContext *notif);
 
 // deinitialize the gmain context
-void deinit_notify();
+void deinit_notify(AppContext *app_context);
+
+// end the notification thread
+void close_notify(NotificationContext *notif);
 
 #endif  // NOTIFY_H

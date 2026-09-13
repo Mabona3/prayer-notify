@@ -8,14 +8,14 @@
 #define GB(n) ((uint64_t)(n) << 30)
 
 #define ALIGN_UP_POW2(n, p) \
-  (((uint64_t)(n) + ((uint64_t)(p) - 1)) & (~((uint64_t)(p) - 1)))
+    (((uint64_t)(n) + ((uint64_t)(p) - 1)) & (~((uint64_t)(p) - 1)))
 
 typedef struct Arena Arena;
 
 typedef struct {
-  Arena *arena;
-  uintptr_t start_address;
-  uint64_t size;
+    Arena *arena;
+    uintptr_t start_address;
+    uint64_t size;
 } ScratchArena;
 
 /*

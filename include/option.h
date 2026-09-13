@@ -8,7 +8,7 @@
  * @params prayerTimes PrayerTimes*
  * @params argc int the main argc
  * @params argv char *[]
- * @return 0 if the main has to continue 1 otherwise 2 if an error occured
+ * @return 0 if the main has to continue 1 otherwise -1 if an error occured
  */
 int parse_inputs(PrayerTimes *prayerTimes, int argc, char *argv[]);
 

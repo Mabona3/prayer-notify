@@ -44,71 +44,71 @@ http://code.ebrahim.ir/prayertimes/
 #include <time.h>
 
 typedef struct {
-  double lng;
-  double lat;
+    double lng;
+    double lat;
 } Position;
 
 typedef enum {
-  TIMEID_Fajr,
-  TIMEID_Sunrise,
-  TIMEID_Dhuhr,
-  TIMEID_Asr,
-  TIMEID_Sunset,
-  TIMEID_Maghrib,
-  TIMEID_Isha,
+    TIMEID_Fajr,
+    TIMEID_Sunrise,
+    TIMEID_Dhuhr,
+    TIMEID_Asr,
+    TIMEID_Sunset,
+    TIMEID_Maghrib,
+    TIMEID_Isha,
 
-  TIMEID_TimesCount
+    TIMEID_TimesCount
 } TimeID;
 
 typedef enum {
-  JURISTIC_Shafi,   // Shafii (standard)
-  JURISTIC_Hanafi,  // Hanafi
-                    //
-  JURISTICMETHOD_COUNT,
+    JURISTIC_Shafi,   // Shafii (standard)
+    JURISTIC_Hanafi,  // Hanafi
+                      //
+    JURISTICMETHOD_COUNT,
 } JuristicMethod;
 
 typedef enum {
-  CALCULATION_Jafari,   // Ithna Ashari
-  CALCULATION_Karachi,  // University of Islamic Sciences, Karachi
-  CALCULATION_ISNA,     // Islamic Society of North America (ISNA)
-  CALCULATION_MWL,      // Muslim World League (MWL)
-  CALCULATION_Makkah,   // Umm al-Qura, Makkah
-  CALCULATION_Egypt,    // Egyptian General Authority of Survey
-  CALCULATION_Custom,   // Custom Setting
+    CALCULATION_Jafari,   // Ithna Ashari
+    CALCULATION_Karachi,  // University of Islamic Sciences, Karachi
+    CALCULATION_ISNA,     // Islamic Society of North America (ISNA)
+    CALCULATION_MWL,      // Muslim World League (MWL)
+    CALCULATION_Makkah,   // Umm al-Qura, Makkah
+    CALCULATION_Egypt,    // Egyptian General Authority of Survey
+    CALCULATION_Custom,   // Custom Setting
 
-  CALCULATIONMETHOD_COUNT
+    CALCULATIONMETHOD_COUNT
 } CalculationMethod;
 
 typedef enum {
-  ADJUSTING_MidNight,    // middle of night
-  ADJUSTING_OneSeventh,  // 1/7th of night
-  ADJUSTING_AngleBased,  // angle/60th of night
-  ADJUSTING_None,        // No adjustment
-                         //
-  ADJUSTINGMETHOD_COUNT,
+    ADJUSTING_MidNight,    // middle of night
+    ADJUSTING_OneSeventh,  // 1/7th of night
+    ADJUSTING_AngleBased,  // angle/60th of night
+    ADJUSTING_None,        // No adjustment
+                           //
+    ADJUSTINGMETHOD_COUNT,
 } AdjustingMethod;
 
 typedef struct {
-  double fajr_angle;
-  bool maghrib_is_minutes;
-  double maghrib_value;  // angle or minutes
-  bool isha_is_minutes;
-  double isha_value;  // angle or minutes
+    double fajr_angle;
+    double maghrib_value;  // angle or minutes
+    double isha_value;     // angle or minutes
+    bool maghrib_is_minutes;
+    bool isha_is_minutes;
 } MethodConfig;
 
 typedef struct {
-  CalculationMethod calc_method;     // caculation method
-  JuristicMethod asr_juristic;       // Juristic method for Asr
-  AdjustingMethod adjust_high_lats;  // adjusting method for higher latitudes
-  double dhuhr_minutes;              // minutes after mid-day for Dhuhr
+    CalculationMethod calc_method;     // caculation method
+    JuristicMethod asr_juristic;       // Juristic method for Asr
+    AdjustingMethod adjust_high_lats;  // adjusting method for higher latitudes
+    double dhuhr_minutes;              // minutes after mid-day for Dhuhr
 
-  time_t time;  // The day in which it is will be processed.
+    time_t time;  // The day in which it is will be processed.
 
-  double longitude;
-  double latitude;
-  double timezone;
-  double julian_date;
-  MethodConfig method_params[CALCULATIONMETHOD_COUNT];
+    double longitude;
+    double latitude;
+    double timezone;
+    double julian_date;
+    MethodConfig method_params[CALCULATIONMETHOD_COUNT];
 } PrayerTimes;
 
 /*            Enum To String Section                */
