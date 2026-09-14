@@ -108,7 +108,6 @@ typedef struct {
     double latitude;
     double timezone;
     double julian_date;
-    MethodConfig method_params[CALCULATIONMETHOD_COUNT];
 } PrayerTimes;
 
 /*            Enum To String Section                */
@@ -240,18 +239,18 @@ void day_portion(double times[]);
 double get_julian_date(int year, int month, int day);
 
 /* set the angle for calculating Maghrib */
-void set_maghrib_minutes(PrayerTimes *prayerTimes, double minutes);
+void set_maghrib_minutes(double minutes);
 
 /* set the angle for calculating Fajr */
-void set_fajr_angle(PrayerTimes *prayerTimes, double angle);
+void set_fajr_angle(double angle);
 
 /* set the angle for calculating Maghrib */
-void set_maghrib_angle(PrayerTimes *prayerTimes, double angle);
+void set_maghrib_angle(double angle);
 
 /* set the angle for calculating Isha */
-void set_isha_angle(PrayerTimes *prayerTimes, double angle);
+void set_isha_angle(double angle);
 
 /* set the minutes after Maghrib for calculating Isha */
-void set_isha_minutes(PrayerTimes *prayerTimes, double minutes);
+void set_isha_minutes(double minutes);
 
 #endif  // PRAYERTIMES_H

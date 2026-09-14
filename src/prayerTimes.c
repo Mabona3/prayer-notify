@@ -34,14 +34,25 @@ static double deg2rad(double d);
 /* radian to degree */
 static double rad2deg(double r);
 
-inline MethodConfig create_method_config(double fajr_angle,
-                                         bool maghrib_is_minutes,
-                                         double maghrib_value,
-                                         bool isha_is_minutes,
-                                         double isha_value) {
-    return (MethodConfig){fajr_angle, maghrib_is_minutes, maghrib_value,
-                          isha_is_minutes, isha_value};
-}
+#define INIT_METHOD_PARAMS(FAJR_ANGLE, MAGHRIB_VALUE, ISHA_VALUE, \
+                           MAGHRIB_IS_MINUTES, ISHA_IS_MINUTES)   \
+    {                                                             \
+        .fajr_angle = FAJR_ANGLE,                                 \
+        .maghrib_value = MAGHRIB_VALUE,                           \
+        .isha_value = ISHA_VALUE,                                 \
+        .maghrib_is_minutes = MAGHRIB_IS_MINUTES,                 \
+        .isha_is_minutes = ISHA_IS_MINUTES,                       \
+    }
+
+static MethodConfig method_params[CALCULATIONMETHOD_COUNT] = {
+    [CALCULATION_Jafari] = INIT_METHOD_PARAMS(16.0, 4.0, 14.0, false, false),
+    [CALCULATION_Karachi] = INIT_METHOD_PARAMS(18.0, 0.0, 18.0, true, false),
+    [CALCULATION_ISNA] = INIT_METHOD_PARAMS(15.0, 0.0, 15.0, true, false),
+    [CALCULATION_MWL] = INIT_METHOD_PARAMS(18.0, 0.0, 17.0, true, false),
+    [CALCULATION_Makkah] = INIT_METHOD_PARAMS(19.0, 0.0, 90.0, true, true),
+    [CALCULATION_Egypt] = INIT_METHOD_PARAMS(19.5, 0.0, 17.5, true, false),
+    [CALCULATION_Custom] = INIT_METHOD_PARAMS(18.0, 0.0, 17.0, true, false),
+};
 
 inline PrayerTimes create_prayer_times(CalculationMethod calc_method,
                                        JuristicMethod asr_juristic,
@@ -54,22 +65,6 @@ inline PrayerTimes create_prayer_times(CalculationMethod calc_method,
             adjust_high_lats,  // adjusting method for higher latitudes
         .dhuhr_minutes = dhuhr_minutes,  // minutes after mid-day for Dhuhr
     };
-
-    // Actual Constants
-    prayerTimes.method_params[CALCULATION_Jafari] =
-        create_method_config(16.0, false, 4.0, false, 14.0);  // Jafari
-    prayerTimes.method_params[CALCULATION_Karachi] =
-        create_method_config(18.0, true, 0.0, false, 18.0);  // Karachi
-    prayerTimes.method_params[CALCULATION_ISNA] =
-        create_method_config(15.0, true, 0.0, false, 15.0);  // ISNA
-    prayerTimes.method_params[CALCULATION_MWL] =
-        create_method_config(18.0, true, 0.0, false, 17.0);  // MWL
-    prayerTimes.method_params[CALCULATION_Makkah] =
-        create_method_config(19.0, true, 0.0, true, 90.0);  // Makkah
-    prayerTimes.method_params[CALCULATION_Egypt] =
-        create_method_config(19.5, true, 0.0, false, 17.5);  // Egypt
-    prayerTimes.method_params[CALCULATION_Custom] =
-        create_method_config(18.0, true, 0.0, false, 17.0);  // Custom
 
     return prayerTimes;
 }
@@ -87,22 +82,6 @@ PrayerTimes *create_new_prayer_times(CalculationMethod calc_method,
             adjust_high_lats,  // adjusting method for higher latitudes
         .dhuhr_minutes = dhuhr_minutes,  // minutes after mid-day for Dhuhr
     };
-
-    // Actual Constants
-    prayerTimes->method_params[CALCULATION_Jafari] =
-        create_method_config(16.0, false, 4.0, false, 14.0);  // Jafari
-    prayerTimes->method_params[CALCULATION_Karachi] =
-        create_method_config(18.0, true, 0.0, false, 18.0);  // Karachi
-    prayerTimes->method_params[CALCULATION_ISNA] =
-        create_method_config(15.0, true, 0.0, false, 15.0);  // ISNA
-    prayerTimes->method_params[CALCULATION_MWL] =
-        create_method_config(18.0, true, 0.0, false, 17.0);  // MWL
-    prayerTimes->method_params[CALCULATION_Makkah] =
-        create_method_config(19.0, true, 0.0, true, 90.0);  // Makkah
-    prayerTimes->method_params[CALCULATION_Egypt] =
-        create_method_config(19.5, true, 0.0, false, 17.5);  // Egypt
-    prayerTimes->method_params[CALCULATION_Custom] =
-        create_method_config(18.0, true, 0.0, false, 17.0);  // Custom
 
     return prayerTimes;
 }
@@ -196,8 +175,7 @@ void compute_times(PrayerTimes *prayerTimes, double times[]) {
     day_portion(times);
 
     times[TIMEID_Fajr] = compute_time(
-        prayerTimes,
-        180.0 - prayerTimes->method_params[prayerTimes->calc_method].fajr_angle,
+        prayerTimes, 180.0 - method_params[prayerTimes->calc_method].fajr_angle,
         times[TIMEID_Fajr]);
     times[TIMEID_Sunrise] =
         compute_time(prayerTimes, 180.0 - 0.833, times[TIMEID_Sunrise]);
@@ -207,12 +185,10 @@ void compute_times(PrayerTimes *prayerTimes, double times[]) {
     times[TIMEID_Sunset] =
         compute_time(prayerTimes, 0.833, times[TIMEID_Sunset]);
     times[TIMEID_Maghrib] = compute_time(
-        prayerTimes,
-        prayerTimes->method_params[prayerTimes->calc_method].maghrib_value,
+        prayerTimes, method_params[prayerTimes->calc_method].maghrib_value,
         times[TIMEID_Maghrib]);
     times[TIMEID_Isha] = compute_time(
-        prayerTimes,
-        prayerTimes->method_params[prayerTimes->calc_method].isha_value,
+        prayerTimes, method_params[prayerTimes->calc_method].isha_value,
         times[TIMEID_Isha]);
 }
 
@@ -227,55 +203,46 @@ void compute_day_times(PrayerTimes *prayerTimes, double times[]) {
 }
 
 /* set the angle for calculating Fajr */
-void set_fajr_angle(PrayerTimes *prayerTimes, double angle) {
-    prayerTimes->method_params[CALCULATION_Custom].fajr_angle = angle;
-    prayerTimes->calc_method = CALCULATION_Custom;
+void set_fajr_angle(double angle) {
+    method_params[CALCULATION_Custom].fajr_angle = angle;
 }
 
 /* set the angle for calculating Maghrib */
-void set_maghrib_angle(PrayerTimes *prayerTimes, double angle) {
-    prayerTimes->method_params[CALCULATION_Custom].maghrib_is_minutes = false;
-    prayerTimes->method_params[CALCULATION_Custom].maghrib_value = angle;
-    prayerTimes->calc_method = CALCULATION_Custom;
+void set_maghrib_angle(double angle) {
+    method_params[CALCULATION_Custom].maghrib_is_minutes = false;
+    method_params[CALCULATION_Custom].maghrib_value = angle;
 }
 
-void set_maghrib_minutes(PrayerTimes *prayerTimes, double minutes) {
-    prayerTimes->method_params[CALCULATION_Custom].maghrib_is_minutes = true;
-    prayerTimes->method_params[CALCULATION_Custom].maghrib_value = minutes;
-    prayerTimes->calc_method = CALCULATION_Custom;
+void set_maghrib_minutes(double minutes) {
+    method_params[CALCULATION_Custom].maghrib_is_minutes = true;
+    method_params[CALCULATION_Custom].maghrib_value = minutes;
 }
 
 /* set the angle for calculating Isha */
-void set_isha_angle(PrayerTimes *prayerTimes, double angle) {
-    prayerTimes->method_params[CALCULATION_Custom].isha_is_minutes = false;
-    prayerTimes->method_params[CALCULATION_Custom].isha_value = angle;
-    prayerTimes->calc_method = CALCULATION_Custom;
+void set_isha_angle(double angle) {
+    method_params[CALCULATION_Custom].isha_is_minutes = false;
+    method_params[CALCULATION_Custom].isha_value = angle;
 }
 
 /* set the minutes after Maghrib for calculating Isha */
-void set_isha_minutes(PrayerTimes *prayerTimes, double minutes) {
-    prayerTimes->method_params[CALCULATION_Custom].isha_is_minutes = true;
-    prayerTimes->method_params[CALCULATION_Custom].isha_value = minutes;
-    prayerTimes->calc_method = CALCULATION_Custom;
+void set_isha_minutes(double minutes) {
+    method_params[CALCULATION_Custom].isha_is_minutes = true;
+    method_params[CALCULATION_Custom].isha_value = minutes;
 }
 
 /* adjust times in a prayer time array */
 void adjust_times(PrayerTimes *prayerTimes, double times[]) {
     for (int i = 0; i < TIMEID_TimesCount; ++i)
         times[i] += prayerTimes->timezone - (prayerTimes->longitude / 15.0);
-    times[TIMEID_Dhuhr] += prayerTimes->dhuhr_minutes / 60.0;  // Dhuhr
-    if (prayerTimes->method_params[prayerTimes->calc_method]
-            .maghrib_is_minutes)  // Maghrib
+    times[TIMEID_Dhuhr] += prayerTimes->dhuhr_minutes / 60.0;        // Dhuhr
+    if (method_params[prayerTimes->calc_method].maghrib_is_minutes)  // Maghrib
         times[TIMEID_Maghrib] =
             times[TIMEID_Sunset] +
-            prayerTimes->method_params[prayerTimes->calc_method].maghrib_value /
-                60.0;
-    if (prayerTimes->method_params[prayerTimes->calc_method]
-            .isha_is_minutes)  // Isha
+            method_params[prayerTimes->calc_method].maghrib_value / 60.0;
+    if (method_params[prayerTimes->calc_method].isha_is_minutes)  // Isha
         times[TIMEID_Isha] =
             times[TIMEID_Maghrib] +
-            prayerTimes->method_params[prayerTimes->calc_method].isha_value /
-                60.0;
+            method_params[prayerTimes->calc_method].isha_value / 60.0;
 
     if (prayerTimes->adjust_high_lats != ADJUSTING_None)
         adjust_high_lat_times(prayerTimes, times);
@@ -288,9 +255,8 @@ void adjust_high_lat_times(PrayerTimes *prayerTimes, double times[]) {
 
     // Adjust Fajr
     double fajr_diff =
-        night_portion(
-            prayerTimes,
-            prayerTimes->method_params[prayerTimes->calc_method].fajr_angle) *
+        night_portion(prayerTimes,
+                      method_params[prayerTimes->calc_method].fajr_angle) *
         night_time;
     if (isnan(times[TIMEID_Fajr]) ||
         time_diff(times[TIMEID_Fajr], times[TIMEID_Sunrise]) > fajr_diff)
@@ -298,9 +264,9 @@ void adjust_high_lat_times(PrayerTimes *prayerTimes, double times[]) {
 
     // Adjust Isha
     double isha_angle =
-        prayerTimes->method_params[prayerTimes->calc_method].isha_is_minutes
+        method_params[prayerTimes->calc_method].isha_is_minutes
             ? 18.0
-            : prayerTimes->method_params[prayerTimes->calc_method].isha_value;
+            : method_params[prayerTimes->calc_method].isha_value;
     double isha_diff = night_portion(prayerTimes, isha_angle) * night_time;
     if (isnan(times[TIMEID_Isha]) ||
         time_diff(times[TIMEID_Sunset], times[TIMEID_Isha]) > isha_diff)
@@ -308,10 +274,9 @@ void adjust_high_lat_times(PrayerTimes *prayerTimes, double times[]) {
 
     // Adjust Maghrib
     double maghrib_angle =
-        prayerTimes->method_params[prayerTimes->calc_method].maghrib_is_minutes
+        method_params[prayerTimes->calc_method].maghrib_is_minutes
             ? 4.0
-            : prayerTimes->method_params[prayerTimes->calc_method]
-                  .maghrib_value;
+            : method_params[prayerTimes->calc_method].maghrib_value;
     double maghrib_diff =
         night_portion(prayerTimes, maghrib_angle) * night_time;
     if (isnan(times[TIMEID_Maghrib]) ||

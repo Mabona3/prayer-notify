@@ -32,17 +32,17 @@
 // name is the name of the field that should be retrieved from the struct
 #define JSON_RETRIEVE_DOUBLE(jsondata, json, location, tmp, name)  \
     do {                                                           \
-        jsondata->location = NAN;                                  \
+        (jsondata)->location = NAN;                                \
         tmp = cJSON_GetObjectItemCaseSensitive(json, name);        \
         if (cJSON_IsNumber(tmp)) {                                 \
-            jsondata->location = tmp->valuedouble;                 \
+            (jsondata)->location = tmp->valuedouble;               \
         } else {                                                   \
             JSON_RETURN_WITH_ERROR(                                \
-                jsondata, json, file, name,                        \
+                (jsondata), json, file, name,                      \
                 "Error parsing config file '%s'\nInvalid type\n"); \
         }                                                          \
         log_msg(LOGLEVEL_DEBUG, "%s option is set to %lf", name,   \
-                jsondata->location);                               \
+                (jsondata)->location);                             \
     } while (0)
 
 // PrayerTimes is the struct type that holds the data
@@ -133,42 +133,27 @@ int read_config(PrayerTimes *prayerTimes) {
     JSON_RETRIEVE_ENUM_ARRAY(prayerTimes, json, calc_method, tmp, Calculation,
                              CalculationMethod, "Calculation");
     if (strcmp(Calculation[prayerTimes->calc_method], "Custom") == 0) {
-        JSON_RETRIEVE_DOUBLE(prayerTimes, json,
-                             method_params[CALCULATION_Custom].fajr_angle, tmp,
+        MethodConfig methodConfig = {0};
+        JSON_RETRIEVE_DOUBLE(&methodConfig, json, fajr_angle, tmp,
                              "fajr_angle");
-        set_fajr_angle(
-            prayerTimes,
-            prayerTimes->method_params[CALCULATION_Custom].fajr_angle);
-        JSON_RETRIEVE_DOUBLE(prayerTimes, json,
-                             method_params[CALCULATION_Custom].isha_value, tmp,
+        set_fajr_angle(methodConfig.fajr_angle);
+        JSON_RETRIEVE_DOUBLE(&methodConfig, json, isha_value, tmp,
                              "isha_angle");
-        if (prayerTimes->method_params[CALCULATION_Custom].isha_value != 0) {
-            set_isha_angle(
-                prayerTimes,
-                prayerTimes->method_params[CALCULATION_Custom].isha_value);
+        if (methodConfig.isha_value != 0) {
+            set_isha_angle(methodConfig.isha_value);
         } else {
-            JSON_RETRIEVE_DOUBLE(prayerTimes, json,
-                                 method_params[CALCULATION_Custom].isha_value,
-                                 tmp, "isha_minutes");
-            set_isha_minutes(
-                prayerTimes,
-                prayerTimes->method_params[CALCULATION_Custom].isha_value);
+            JSON_RETRIEVE_DOUBLE(&methodConfig, json, isha_value, tmp,
+                                 "isha_minutes");
+            set_isha_minutes(methodConfig.isha_value);
         }
-        JSON_RETRIEVE_DOUBLE(prayerTimes, json,
-                             method_params[CALCULATION_Custom].maghrib_value,
-                             tmp, "maghrib_angle");
-        if (prayerTimes->method_params[CALCULATION_Custom].maghrib_value != 0) {
-            set_maghrib_angle(
-                prayerTimes,
-                prayerTimes->method_params[CALCULATION_Custom].maghrib_value);
+        JSON_RETRIEVE_DOUBLE(&methodConfig, json, maghrib_value, tmp,
+                             "maghrib_angle");
+        if (methodConfig.maghrib_value != 0) {
+            set_maghrib_angle(methodConfig.maghrib_value);
         } else {
-            JSON_RETRIEVE_DOUBLE(
-                prayerTimes, json,
-                method_params[CALCULATION_Custom].maghrib_value, tmp,
-                "maghrib_minutes");
-            set_isha_minutes(
-                prayerTimes,
-                prayerTimes->method_params[CALCULATION_Custom].isha_value);
+            JSON_RETRIEVE_DOUBLE(&methodConfig, json, maghrib_value, tmp,
+                                 "maghrib_minutes");
+            set_isha_minutes(methodConfig.isha_value);
         }
     }
     JSON_RETRIEVE_DOUBLE(prayerTimes, json, longitude, tmp, "lng");
