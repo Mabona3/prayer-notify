@@ -14,21 +14,33 @@ void *notify_thread(void *args);
 
 static void on_notification_closed(NotifyNotification *notification,
                                    __attribute__((unused)) char *action,
-                                   __attribute__((unused)) gpointer user_data) {
+                                   __attribute__((unused)) gpointer user_data)
+{
     gint ret = notify_notification_get_closed_reason(notification);
     char *reason;
     switch ((NotifyClosedReason)ret) {
-        case NOTIFY_CLOSED_REASON_UNSET: reason = "unset"; break;
-        case NOTIFY_CLOSED_REASON_EXPIRED: reason = "expired"; break;
-        case NOTIFY_CLOSED_REASON_DISMISSED: reason = "dismissed"; break;
-        case NOTIFY_CLOSED_REASON_API_REQUEST: reason = "api request"; break;
+        case NOTIFY_CLOSED_REASON_UNSET:
+            reason = "unset";
+            break;
+        case NOTIFY_CLOSED_REASON_EXPIRED:
+            reason = "expired";
+            break;
+        case NOTIFY_CLOSED_REASON_DISMISSED:
+            reason = "dismissed";
+            break;
+        case NOTIFY_CLOSED_REASON_API_REQUEST:
+            reason = "api request";
+            break;
         case NOTIFY_CLOSED_REASON_UNDEFINED:
-        default: reason = "undefined"; break;
+        default:
+            reason = "undefined";
+            break;
     }
     log_msg(LOGLEVEL_DEBUG, "Notification closed with reason code: %s", reason);
 }
 
-static gboolean notification_update(gpointer data) {
+static gboolean notification_update(gpointer data)
+{
     NotificationContext *notif = (NotificationContext *)data;
     log_msg(LOGLEVEL_DEBUG, "invoking the update_show function");
     notify_notification_update(notif->notify, NOTIFICATION_NAME,
@@ -39,11 +51,13 @@ static gboolean notification_update(gpointer data) {
     return G_SOURCE_REMOVE;
 }
 
-void close_notify(NotificationContext *notif) {
+void close_notify(NotificationContext *notif)
+{
     g_main_loop_quit(notif->main_loop);
 }
 
-unsigned long int init_notify(AppContext *app_context) {
+unsigned long int init_notify(AppContext *app_context)
+{
     pthread_t notify_thread_id;
     if (!notify_init(NOTIFICATION_NAME)) {
         log_msg(LOGLEVEL_ERROR, "failed to init libnotify");
@@ -83,7 +97,8 @@ unsigned long int init_notify(AppContext *app_context) {
     return notify_thread_id;
 }
 
-void send_notification(NotificationContext *notif) {
+void send_notification(NotificationContext *notif)
+{
     log_msg(LOGLEVEL_DEBUG, "Sending notification for %s",
             TimeName[notif->current_time]);
 
@@ -91,13 +106,15 @@ void send_notification(NotificationContext *notif) {
     g_main_context_invoke(notif->main_context, notification_update, notif);
 }
 
-void deinit_notify(AppContext *app_context) {
+void deinit_notify(AppContext *app_context)
+{
     log_msg(LOGLEVEL_DEBUG, "Destroying Notification");
     g_object_unref(app_context->notif.notify);
     notify_uninit();
 }
 
-void *notify_thread(void *args) {
+void *notify_thread(void *args)
+{
     AppContext *app_context = (AppContext *)args;
     g_main_loop_run(app_context->notif.main_loop);
     return NULL;

@@ -57,7 +57,8 @@ static MethodConfig method_params[CALCULATIONMETHOD_COUNT] = {
 inline PrayerTimes create_prayer_times(CalculationMethod calc_method,
                                        JuristicMethod asr_juristic,
                                        AdjustingMethod adjust_high_lats,
-                                       double dhuhr_minutes) {
+                                       double dhuhr_minutes)
+{
     PrayerTimes prayerTimes = (PrayerTimes){
         .calc_method = calc_method,    // caculation method
         .asr_juristic = asr_juristic,  // Juristic method for Asr
@@ -72,7 +73,8 @@ inline PrayerTimes create_prayer_times(CalculationMethod calc_method,
 PrayerTimes *create_new_prayer_times(CalculationMethod calc_method,
                                      JuristicMethod asr_juristic,
                                      AdjustingMethod adjust_high_lats,
-                                     double dhuhr_minutes) {
+                                     double dhuhr_minutes)
+{
     PrayerTimes *prayerTimes = malloc(sizeof(PrayerTimes));
 
     *prayerTimes = (PrayerTimes){
@@ -88,7 +90,8 @@ PrayerTimes *create_new_prayer_times(CalculationMethod calc_method,
 
 void get_prayer_times_date(PrayerTimes *prayerTimes, int year, int month,
                            int day, double latitude, double longitude,
-                           double timezone, double times[]) {
+                           double timezone, double times[])
+{
     prayerTimes->longitude = longitude;
     prayerTimes->latitude = latitude;
     prayerTimes->timezone = timezone;
@@ -98,13 +101,15 @@ void get_prayer_times_date(PrayerTimes *prayerTimes, int year, int month,
 }
 
 void get_prayer_times_time(PrayerTimes *prayerTimes, double latitude,
-                           double longitude, double timezone, double times[]) {
+                           double longitude, double timezone, double times[])
+{
     struct tm *t = localtime(&prayerTimes->time);
     get_prayer_times_date(prayerTimes, 1900 + t->tm_year, t->tm_mon + 1,
                           t->tm_mday, latitude, longitude, timezone, times);
 }
 
-double get_effective_timezone_time(time_t local_time) {
+double get_effective_timezone_time(time_t local_time)
+{
     struct tm *tmp = localtime(&local_time);
     tmp->tm_isdst = 0;
     time_t local = mktime(tmp);
@@ -115,7 +120,8 @@ double get_effective_timezone_time(time_t local_time) {
 }
 
 /* compute local time-zone for a specific date */
-double get_effective_timezone_date(int year, int month, int day) {
+double get_effective_timezone_date(int year, int month, int day)
+{
     struct tm date = {0};
     date.tm_year = year - 1900;
     date.tm_mon = month - 1;
@@ -125,13 +131,15 @@ double get_effective_timezone_date(int year, int month, int day) {
     return get_effective_timezone_time(local);
 }
 
-double fix_angle(double a) {
+double fix_angle(double a)
+{
     a = a - 360.0 * floor(a / 360.0);
     a = a < 0.0 ? a + 360.0 : a;
     return a;
 }
 
-double get_julian_date(int year, int month, int day) {
+double get_julian_date(int year, int month, int day)
+{
     if (month <= 2) {
         year -= 1;
         month += 12;
@@ -144,12 +152,14 @@ double get_julian_date(int year, int month, int day) {
            b - 1524.5;
 }
 
-static inline double compute_mid_day(PrayerTimes *prayerTimes, double t) {
+static inline double compute_mid_day(PrayerTimes *prayerTimes, double t)
+{
     return fix_hour(12 - equation_of_time(prayerTimes->julian_date + t));
 }
 
 /* compute time for a given angle G */
-double compute_time(PrayerTimes *prayerTimes, double g, double t) {
+double compute_time(PrayerTimes *prayerTimes, double g, double t)
+{
     double d = sun_declination(prayerTimes->julian_date + t);
     double z = compute_mid_day(prayerTimes, t);
     double v = 1.0 / 15.0 *
@@ -159,7 +169,8 @@ double compute_time(PrayerTimes *prayerTimes, double g, double t) {
 }
 
 /* compute the time of Asr */
-double compute_asr(PrayerTimes *prayerTimes, int step, double t) {
+double compute_asr(PrayerTimes *prayerTimes, int step, double t)
+{
     // Shafi: step=1, Hanafi: step=2
     double d = sun_declination(prayerTimes->julian_date + t);
     double g = -darccot(step + dtan(fabs(prayerTimes->latitude - d)));
@@ -171,7 +182,8 @@ double compute_asr(PrayerTimes *prayerTimes, int step, double t) {
 // array parameters must be at least of size TimesCount
 
 /* compute prayer times at given julian date */
-void compute_times(PrayerTimes *prayerTimes, double times[]) {
+void compute_times(PrayerTimes *prayerTimes, double times[])
+{
     day_portion(times);
 
     times[TIMEID_Fajr] = compute_time(
@@ -193,7 +205,8 @@ void compute_times(PrayerTimes *prayerTimes, double times[]) {
 }
 
 /* compute prayer times at given julian date */
-void compute_day_times(PrayerTimes *prayerTimes, double times[]) {
+void compute_day_times(PrayerTimes *prayerTimes, double times[])
+{
     double default_times[] = {5, 6, 12, 13, 18, 18, 18};  // default times
     for (int i = 0; i < TIMEID_TimesCount; ++i) times[i] = default_times[i];
 
@@ -203,35 +216,41 @@ void compute_day_times(PrayerTimes *prayerTimes, double times[]) {
 }
 
 /* set the angle for calculating Fajr */
-void set_fajr_angle(double angle) {
+void set_fajr_angle(double angle)
+{
     method_params[CALCULATION_Custom].fajr_angle = angle;
 }
 
 /* set the angle for calculating Maghrib */
-void set_maghrib_angle(double angle) {
+void set_maghrib_angle(double angle)
+{
     method_params[CALCULATION_Custom].maghrib_is_minutes = false;
     method_params[CALCULATION_Custom].maghrib_value = angle;
 }
 
-void set_maghrib_minutes(double minutes) {
+void set_maghrib_minutes(double minutes)
+{
     method_params[CALCULATION_Custom].maghrib_is_minutes = true;
     method_params[CALCULATION_Custom].maghrib_value = minutes;
 }
 
 /* set the angle for calculating Isha */
-void set_isha_angle(double angle) {
+void set_isha_angle(double angle)
+{
     method_params[CALCULATION_Custom].isha_is_minutes = false;
     method_params[CALCULATION_Custom].isha_value = angle;
 }
 
 /* set the minutes after Maghrib for calculating Isha */
-void set_isha_minutes(double minutes) {
+void set_isha_minutes(double minutes)
+{
     method_params[CALCULATION_Custom].isha_is_minutes = true;
     method_params[CALCULATION_Custom].isha_value = minutes;
 }
 
 /* adjust times in a prayer time array */
-void adjust_times(PrayerTimes *prayerTimes, double times[]) {
+void adjust_times(PrayerTimes *prayerTimes, double times[])
+{
     for (int i = 0; i < TIMEID_TimesCount; ++i)
         times[i] += prayerTimes->timezone - (prayerTimes->longitude / 15.0);
     times[TIMEID_Dhuhr] += prayerTimes->dhuhr_minutes / 60.0;        // Dhuhr
@@ -249,7 +268,8 @@ void adjust_times(PrayerTimes *prayerTimes, double times[]) {
 }
 
 /* adjust Fajr, Isha and Maghrib for locations in higher latitudes */
-void adjust_high_lat_times(PrayerTimes *prayerTimes, double times[]) {
+void adjust_high_lat_times(PrayerTimes *prayerTimes, double times[])
+{
     double night_time = time_diff(times[TIMEID_Sunset],
                                   times[TIMEID_Sunrise]);  // sunset to sunrise
 
@@ -285,11 +305,15 @@ void adjust_high_lat_times(PrayerTimes *prayerTimes, double times[]) {
 }
 
 /* the night portion used for adjusting times in higher latitudes */
-double night_portion(PrayerTimes *prayerTimes, double angle) {
+double night_portion(PrayerTimes *prayerTimes, double angle)
+{
     switch (prayerTimes->adjust_high_lats) {
-        case ADJUSTING_AngleBased: return angle / 60.0;
-        case ADJUSTING_MidNight: return 1.0 / 2.0;
-        case ADJUSTING_OneSeventh: return 1.0 / 7.0;
+        case ADJUSTING_AngleBased:
+            return angle / 60.0;
+        case ADJUSTING_MidNight:
+            return 1.0 / 2.0;
+        case ADJUSTING_OneSeventh:
+            return 1.0 / 7.0;
         default:
             // Just to return something!
             // In original library nothing was returned
@@ -300,13 +324,15 @@ double night_portion(PrayerTimes *prayerTimes, double angle) {
 }
 
 /* convert hours to day portions  */
-void day_portion(double times[]) {
+void day_portion(double times[])
+{
     for (int i = 0; i < TIMEID_TimesCount; ++i) times[i] /= 24.0;
 }
 
 /* ---------------------- Misc Functions ----------------------- */
 
-Position sun_position(double jd) {
+Position sun_position(double jd)
+{
     double d = jd - 2451545.0;
     double g = fix_angle(357.529 + 0.98560028 * d);
     double q = fix_angle(280.459 + 0.98564736 * d);
@@ -323,30 +349,12 @@ Position sun_position(double jd) {
     return (Position){dd, eq_t};
 }
 
-inline double dsin(double d) {
-    return sin(deg2rad(d));
-}
-inline double dcos(double d) {
-    return cos(deg2rad(d));
-}
-inline double dtan(double d) {
-    return tan(deg2rad(d));
-}
-inline double darcsin(double x) {
-    return rad2deg(asin(x));
-}
-inline double darccos(double x) {
-    return rad2deg(acos(x));
-}
-inline double darctan2(double y, double x) {
-    return rad2deg(atan2(y, x));
-}
-inline double darccot(double x) {
-    return rad2deg(atan(1.0 / x));
-}
-inline double deg2rad(double d) {
-    return d * M_PI / 180.0;
-}
-inline double rad2deg(double r) {
-    return r * 180.0 / M_PI;
-}
+inline double dsin(double d) { return sin(deg2rad(d)); }
+inline double dcos(double d) { return cos(deg2rad(d)); }
+inline double dtan(double d) { return tan(deg2rad(d)); }
+inline double darcsin(double x) { return rad2deg(asin(x)); }
+inline double darccos(double x) { return rad2deg(acos(x)); }
+inline double darctan2(double y, double x) { return rad2deg(atan2(y, x)); }
+inline double darccot(double x) { return rad2deg(atan(1.0 / x)); }
+inline double deg2rad(double d) { return d * M_PI / 180.0; }
+inline double rad2deg(double r) { return r * 180.0 / M_PI; }

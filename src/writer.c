@@ -11,7 +11,8 @@
 #include "logger.h"
 #include "prayerTimes.h"
 
-void close_current_writer() {
+void close_current_writer()
+{
     char *temp_file = NULL;
     ScratchArena scratch;
     arena_scratch_push(&scratch);
@@ -28,7 +29,8 @@ void close_current_writer() {
     return;
 }
 
-int write_current(struct tm *times, int current) {
+int write_current(struct tm *times, int current)
+{
     log_msg(LOGLEVEL_DEBUG, "Writing current json file");
     char *temp_file = NULL;
 
@@ -92,7 +94,8 @@ int write_current(struct tm *times, int current) {
     return EXIT_SUCCESS;
 }
 
-bool check_temp_file() {
+bool check_temp_file()
+{
     char *temp_file = NULL;
     ScratchArena scratch;
     arena_scratch_push(&scratch);

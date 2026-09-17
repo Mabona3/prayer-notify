@@ -10,12 +10,10 @@ const char *LogName[] = {[LOGLEVEL_DEBUG] = "DEBUG",
                          [LOGLEVEL_WARN] = "WARN",
                          [LOGLEVEL_ERROR] = "ERROR"};
 
-void init_logger() {
-    log_level = LOGLEVEL_ERROR;
-}
+void init_logger() { log_level = LOGLEVEL_ERROR; }
 
-void _log_msg(LogLevel level, const char *file, int line, const char *fmt,
-              ...) {
+void _log_msg(LogLevel level, const char *file, int line, const char *fmt, ...)
+{
     if (log_level > level) {
         return;
     }
@@ -30,13 +28,15 @@ void _log_msg(LogLevel level, const char *file, int line, const char *fmt,
     va_end(ap);
 }
 
-inline void set_log_level(LogLevel level) {
+inline void set_log_level(LogLevel level)
+{
     if ((log_level == LOGLEVEL_INFO || level == LOGLEVEL_INFO) &&
         log_level != level) {
         fprintf(stdout, "[INFO] Setting log level into %s\n", LogName[level]);
+
+        log_level = level;
     } else if (level > LOGLEVEL_ERROR) {
         log_msg(LOGLEVEL_ERROR, "Unknown log level '%d'\n", level);
+        log_level = LOGLEVEL_ERROR;
     }
-
-    log_level = level;
 }

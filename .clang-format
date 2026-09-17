@@ -1,8 +1,12 @@
 BasedOnStyle: Google
 IndentWidth: 4
-
-AllowShortCaseLabelsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: false
+IndentCaseLabels: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
 PointerAlignment: Right
+UseTab: Never
+AccessModifierOffset: -4
+IndentAccessModifiers: false
+AlignConsecutiveMacros: true
+BreakBeforeBraces: Custom
+BraceWrapping: { AfterFunction: true, AfterControlStatement: false }

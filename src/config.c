@@ -21,7 +21,8 @@ static int create_parent_dir(const char *config_file);
 static int get_config_dir_child(ScratchArena *scratch, const char *file_name,
                                 char **output);
 
-int get_config_file(ScratchArena *scratch, char **config_file) {
+int get_config_file(ScratchArena *scratch, char **config_file)
+{
     log_msg(LOGLEVEL_DEBUG, "Searching the PRAYER_NOTIFY_CONFIG env");
     int offset = strlen(".config/prayer-notify/");
     char *default_home = getenv("PRAYER_NOTIFY_CONFIG");
@@ -59,15 +60,18 @@ int get_config_file(ScratchArena *scratch, char **config_file) {
     return 0;
 }
 
-int get_icon_file(ScratchArena *scratch, char **output) {
+int get_icon_file(ScratchArena *scratch, char **output)
+{
     return get_config_dir_child(scratch, "icon.jpg", output);
 }
 
-int get_audio_file(ScratchArena *scratch, char **output) {
+int get_audio_file(ScratchArena *scratch, char **output)
+{
     return get_config_dir_child(scratch, "audio.mp3", output);
 }
 
-int get_temp_file(ScratchArena *scratch, char **temp_dir) {
+int get_temp_file(ScratchArena *scratch, char **temp_dir)
+{
     if (temp_dir == NULL) {
         return -1;
     }
@@ -108,7 +112,8 @@ int get_temp_file(ScratchArena *scratch, char **temp_dir) {
     return 0;
 }
 
-int create_parent_dir(const char *config_file) {
+int create_parent_dir(const char *config_file)
+{
     if (!config_file) return 1;
 
     ScratchArena scratch;
@@ -141,7 +146,8 @@ int create_parent_dir(const char *config_file) {
 }
 
 int get_config_dir_child(ScratchArena *scratch, const char *file_name,
-                         char **output) {
+                         char **output)
+{
     char *config_file;
     if (get_config_file(scratch, &config_file)) {
         return -1;

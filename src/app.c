@@ -11,7 +11,8 @@
 #include "sched_task.h"
 #include "writer.h"
 
-int app_init(AppContext *app_context, int argc, char *argv[]) {
+int app_init(AppContext *app_context, int argc, char *argv[])
+{
     init_logger();
     if (arena_create()) {
         log_msg(LOGLEVEL_ERROR, "arena_create() failed\n");
@@ -62,12 +63,14 @@ int app_init(AppContext *app_context, int argc, char *argv[]) {
     return 0;
 }
 
-void app_run(AppContext *app_context) {
+void app_run(AppContext *app_context)
+{
     pthread_join(app_context->notif.thread_id, NULL);
     pthread_join(app_context->sched.thread_id, NULL);
 }
 
-void app_quit(AppContext *app_context) {
+void app_quit(AppContext *app_context)
+{
     close_current_writer();
     deinit_notify(app_context);
     arena_destroy();

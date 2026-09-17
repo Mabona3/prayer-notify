@@ -9,7 +9,8 @@
 
 void *sched_thread(void *args);
 
-unsigned long int sched_init(AppContext *app_context) {
+unsigned long int sched_init(AppContext *app_context)
+{
     pthread_t thread_id;
 
     if (pthread_create(&thread_id, NULL, sched_thread, (void *)app_context)) {
@@ -19,7 +20,8 @@ unsigned long int sched_init(AppContext *app_context) {
     return thread_id;
 }
 
-void *sched_thread(void *args) {
+void *sched_thread(void *args)
+{
     AppContext *app_context = (AppContext *)args;
     struct tm times_dates[TIMEID_TimesCount];
     struct tm *date;

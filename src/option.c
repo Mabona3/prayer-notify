@@ -11,7 +11,6 @@
 #include "timeHandle.h"
 #include "version.h"
 
-#define PROG_NAME_FRIENDLY "prayer-notify"
 #define PROG_NAME "prayer-notify"
 
 #define COMMAND(long, short) \
@@ -40,7 +39,8 @@ static void print_next_prayer(PrayerTimes *prayerTimes);
 static void print_all_prayers(PrayerTimes *prayerTimes);
 static void print_previous_prayer(PrayerTimes *prayerTimes);
 
-int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
+int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv)
+{
     for (int i = 1; i < argc; i++) {
         if (COMMAND("--help", "-h")) {
             if (i + 1 == argc || argv[i + 1][0] == '-')
@@ -75,7 +75,7 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
             print_previous_prayer(prayerTimes);
             return 1;
         } else if (COMMAND("--version", "-v")) {
-            puts(PROG_NAME_FRIENDLY " " APP_VERSION);
+            puts(PROG_NAME " " APP_VERSION);
             return 1;
         } else if (COMMAND("--time", "-t")) {
             struct tm *new_date = localtime(&prayerTimes->time);
@@ -150,7 +150,8 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
 
 int handle_array_options(const char *option_name, const char *method_array[],
                          unsigned int method_count, const char *arg,
-                         unsigned int *result) {
+                         unsigned int *result)
+{
     log_msg(LOGLEVEL_DEBUG, "Handling %s with arg %s\n", option_name, arg);
     *result = method_count;
     for (unsigned int i = 0; i < method_count; i++) {
@@ -168,7 +169,8 @@ int handle_array_options(const char *option_name, const char *method_array[],
 }
 
 int handle_double_option(int argc, int *i, char *argv[], double *value,
-                         const char *option_name) {
+                         const char *option_name)
+{
     ++(*i);
     VALUE_REQUIRED((*i), argc, option_name);
     if (sscanf(argv[*i], "%lf", value) != 1) {
@@ -179,7 +181,8 @@ int handle_double_option(int argc, int *i, char *argv[], double *value,
     return 0;
 }
 
-int print_help(const char *arg) {
+int print_help(const char *arg)
+{
     if (!arg) {
         puts("Usage: " PROG_NAME
              " [options]"
@@ -290,7 +293,8 @@ int print_help(const char *arg) {
     return -1;
 }
 
-void print_debug_help(PrayerTimes *prayerTimes) {
+void print_debug_help(PrayerTimes *prayerTimes)
+{
     struct tm *t = localtime(&prayerTimes->time);
     ScratchArena scratch;
     arena_scratch_push(&scratch);
@@ -311,7 +315,8 @@ void print_debug_help(PrayerTimes *prayerTimes) {
     arena_scratch_pop(&scratch);
 }
 
-void print_next_prayer(PrayerTimes *prayerTimes) {
+void print_next_prayer(PrayerTimes *prayerTimes)
+{
     struct tm times_dates[TIMEID_TimesCount];
     struct tm *date;
     update_times(prayerTimes, times_dates);
@@ -348,7 +353,8 @@ void print_next_prayer(PrayerTimes *prayerTimes) {
            diff.seconds);
 }
 
-void print_all_prayers(PrayerTimes *prayerTimes) {
+void print_all_prayers(PrayerTimes *prayerTimes)
+{
     struct tm times_dates[TIMEID_TimesCount];
 
     update_times(prayerTimes, times_dates);
@@ -361,7 +367,8 @@ void print_all_prayers(PrayerTimes *prayerTimes) {
     }
 }
 
-void print_previous_prayer(PrayerTimes *prayerTimes) {
+void print_previous_prayer(PrayerTimes *prayerTimes)
+{
     struct tm times_dates[TIMEID_TimesCount];
     struct tm *date;
 

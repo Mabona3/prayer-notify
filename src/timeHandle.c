@@ -24,7 +24,8 @@ void update_times(PrayerTimes *prayerTimes, struct tm *times_dates) {
 }
 
 /* convert float hours to 24h format */
-void float_time_to_time24(double time, char *time24) {
+void float_time_to_time24(double time, char *time24)
+{
     if (isnan(time)) {
         snprintf(time24, 4, "NAN");
         return;
@@ -34,7 +35,8 @@ void float_time_to_time24(double time, char *time24) {
     snprintf(time24, 6, "%02d:%02d", hours, minutes);
 }
 
-void float_time_to_time12(double time, bool no_suffix, char *time12) {
+void float_time_to_time12(double time, bool no_suffix, char *time12)
+{
     if (isnan(time)) {
         snprintf(time12, 4, "NAN");
         return;
@@ -54,23 +56,27 @@ void float_time_to_time12(double time, bool no_suffix, char *time12) {
              no_suffix ? suffix : "");
 }
 
-void get_float_time_parts(double time, int *hours, int *minutes) {
+void get_float_time_parts(double time, int *hours, int *minutes)
+{
     time = fix_hour(time + 0.5 / 60);  // add 0.5 minutes to round
     *hours = floor(time);
     *minutes = floor((time - *hours) * 60);
 }
 
-double fix_hour(double a) {
+double fix_hour(double a)
+{
     a = a - 24.0 * floor(a / 24.0);
     a = a < 0.0 ? a + 24.0 : a;
     return a;
 }
 
-inline double time_diff(double time1, double time2) {
+inline double time_diff(double time1, double time2)
+{
     return fix_hour(time2 - time1);
 }
 
-inline void time_add_day(struct tm *date) {
+inline void time_add_day(struct tm *date)
+{
     ++date->tm_mday;
     mktime(date);
     date->tm_hour = 0;
@@ -80,7 +86,8 @@ inline void time_add_day(struct tm *date) {
 }
 
 /* remove one day to the struct used in the midtime handler. */
-inline void time_sub_day(struct tm *date) {
+inline void time_sub_day(struct tm *date)
+{
     --date->tm_mday;
     mktime(date);
     date->tm_hour = 0;
@@ -97,7 +104,8 @@ inline void set_date_preserve_time(struct tm *time, struct tm *date) {
     time->tm_hour = hour;
 }
 
-inline Time convert_time_hms(int time) {
+inline Time convert_time_hms(int time)
+{
     Time result;
     result.hours = time / 3600;
     time -= result.hours * 3600;

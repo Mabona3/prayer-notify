@@ -14,7 +14,7 @@
 #include "prayerTimes.h"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-#define BUFFER_SIZE 512
+#define BUFFER_SIZE     512
 
 #define JSON_RETURN_WITH_ERROR(jsondata, json, file, name, error_string) \
     do {                                                                 \
@@ -81,7 +81,8 @@
 // will be created
 int build_default_config(PrayerTimes *data, const char *config_file);
 
-int read_config(PrayerTimes *prayerTimes) {
+int read_config(PrayerTimes *prayerTimes)
+{
     assert(prayerTimes);
     if (prayerTimes == NULL) {
         return -1;
@@ -186,7 +187,8 @@ int read_config(PrayerTimes *prayerTimes) {
     return 0;
 }
 
-int build_default_config(PrayerTimes *data, const char *config_file) {
+int build_default_config(PrayerTimes *data, const char *config_file)
+{
     char buffer[BUFFER_SIZE];
     FILE *file = fopen(config_file, "w");
     if (!file) {

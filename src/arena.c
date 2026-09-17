@@ -14,7 +14,8 @@ struct Arena {
 
 static Arena arena;
 
-int arena_create() {
+int arena_create()
+{
     arena.data = mmap(NULL, MB(512), PROT_READ | PROT_WRITE,
                       MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
     if (arena.data == NULL) {
@@ -25,12 +26,14 @@ int arena_create() {
     return EXIT_SUCCESS;
 }
 
-void arena_destroy() {
+void arena_destroy()
+{
     if (munmap(arena.data, MB(512)))
         log_msg(LOGLEVEL_ERROR, "munmap() failed\n");
 }
 
-void arena_scratch_push(ScratchArena *scratch) {
+void arena_scratch_push(ScratchArena *scratch)
+{
     assert(scratch != NULL);
     *scratch = (ScratchArena){
         .arena = &arena,
@@ -39,13 +42,15 @@ void arena_scratch_push(ScratchArena *scratch) {
     };
 }
 
-void arena_scratch_pop(ScratchArena *scratch) {
+void arena_scratch_pop(ScratchArena *scratch)
+{
     log_msg(LOGLEVEL_DEBUG, "Removing %ld",
             scratch->arena->pos - scratch->start_address);
     scratch->arena->pos = scratch->start_address;
 }
 
-void *arena_push(ScratchArena *scratch, uint64_t size) {
+void *arena_push(ScratchArena *scratch, uint64_t size)
+{
     uint64_t newSize = ALIGN_UP_POW2(size, 0x10);
     if ((uintptr_t)scratch->arena->data + MB(512) <
         (uintptr_t)scratch->start_address + scratch->size + newSize) {

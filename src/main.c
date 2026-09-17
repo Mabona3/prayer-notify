@@ -19,7 +19,8 @@
 
 #include "app.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     AppContext app_context = {0};
     int ret;
     if ((ret = app_init(&app_context, argc, argv)) != 0) {
