@@ -14,6 +14,9 @@
 #define PROG_NAME_FRIENDLY "prayer-notify"
 #define PROG_NAME "prayer-notify"
 
+#define COMMAND(long, short) \
+    (!(strcmp(argv[i], long) && strcmp(argv[i], short)))
+
 #define VALUE_REQUIRED(i, narg, name)                                        \
     do                                                                       \
         if ((i) >= (narg)) {                                                 \
@@ -39,21 +42,21 @@ static void print_previous_prayer(PrayerTimes *prayerTimes);
 
 int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
-        if (!(strcmp(argv[i], "--help") && strcmp(argv[i], "-h"))) {
+        if (COMMAND("--help", "-h")) {
             if (i + 1 == argc || argv[i + 1][0] == '-')
                 return print_help(NULL);
             else
                 return print_help(argv[++i]);
-        } else if (!(strcmp(argv[i], "--option") && strcmp(argv[i], "-o"))) {
+        } else if (COMMAND("--option", "-o")) {
             print_debug_help(prayerTimes);
             return 1;
-        } else if (!(strcmp(argv[i], "--next") && strcmp(argv[i], "-n"))) {
+        } else if (COMMAND("--next", "-n")) {
             print_next_prayer(prayerTimes);
             return 1;
-        } else if (!(strcmp(argv[i], "--all") && strcmp(argv[i], "-a"))) {
+        } else if (COMMAND("--all", "-a")) {
             print_all_prayers(prayerTimes);
             return 1;
-        } else if (!(strcmp(argv[i], "--log-level") && strcmp(argv[i], "-l"))) {
+        } else if (COMMAND("--log-level", "-l")) {
             ++i;
             VALUE_REQUIRED(i, argc, argv[i - 1]);
             if (!strcmp(argv[i], "Info")) {
@@ -68,13 +71,13 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
                 log_msg(LOGLEVEL_ERROR, "Unknown level %s\n", argv[i]);
                 return -1;
             }
-        } else if (!(strcmp(argv[i], "--previous") && strcmp(argv[i], "-p"))) {
+        } else if (COMMAND("--previous", "-p")) {
             print_previous_prayer(prayerTimes);
             return 1;
-        } else if (!(strcmp(argv[i], "--version") && strcmp(argv[i], "-v"))) {
+        } else if (COMMAND("--version", "-v")) {
             puts(PROG_NAME_FRIENDLY " " APP_VERSION);
             return 1;
-        } else if (!(strcmp(argv[i], "--time") && strcmp(argv[i], "-t"))) {
+        } else if (COMMAND("--time", "-t")) {
             struct tm *new_date = localtime(&prayerTimes->time);
             ++i;
             VALUE_REQUIRED(i, argc, argv[i - 1]);
@@ -87,7 +90,7 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
 
             new_date->tm_sec = 0;
             prayerTimes->time = mktime(new_date);
-        } else if (!(strcmp(argv[i], "--date") && strcmp(argv[i], "-d"))) {
+        } else if (COMMAND("--date", "-d")) {
             struct tm *new_date = localtime(&prayerTimes->time);
             ++i;
             VALUE_REQUIRED(i, argc, argv[i - 1]);
@@ -101,36 +104,33 @@ int parse_inputs(PrayerTimes *prayerTimes, int argc, char **argv) {
             new_date->tm_year -= 1900;
             new_date->tm_mon -= 1;
             prayerTimes->time = mktime(new_date);
-        } else if (!(strcmp(argv[i], "--timezone") && strcmp(argv[i], "-z"))) {
+        } else if (COMMAND("--timezone", "-z")) {
             if (handle_double_option(argc, &i, argv, &prayerTimes->timezone,
                                      argv[i]))
                 return -1;
-        } else if (!(strcmp(argv[i], "--latitude") && strcmp(argv[i], "-u"))) {
+        } else if (COMMAND("--latitude", "-u")) {
             if (handle_double_option(argc, &i, argv, &prayerTimes->latitude,
                                      argv[i]))
                 return -1;
-        } else if (!(strcmp(argv[i], "--longitude") && strcmp(argv[i], "-g"))) {
+        } else if (COMMAND("--longitude", "-g")) {
             if (handle_double_option(argc, &i, argv, &prayerTimes->longitude,
                                      argv[i]))
                 return -1;
-        } else if (!(strcmp(argv[i], "--calc-method") &&
-                     strcmp(argv[i], "-c"))) {
+        } else if (COMMAND("--calc-method", "-c")) {
             ++i;
             VALUE_REQUIRED(i, argc, argv[i - 1]);
             if (handle_array_options(argv[i - 1], Calculation,
                                      CALCULATIONMETHOD_COUNT, argv[i],
                                      &prayerTimes->calc_method))
                 return -1;
-        } else if (!(strcmp(argv[i], "--asr-juristic-method") &&
-                     strcmp(argv[i], "-j"))) {
+        } else if (COMMAND("--asr-juristic-method", "-j")) {
             ++i;
             VALUE_REQUIRED(i, argc, argv[i - 1]);
             if (handle_array_options(argv[i - 1], Juristic,
                                      JURISTICMETHOD_COUNT, argv[i],
                                      &prayerTimes->asr_juristic))
                 return -1;
-        } else if (!(strcmp(argv[i], "--high-lats-method") &&
-                     strcmp(argv[i], "-i"))) {
+        } else if (COMMAND("--high-lats-method", "-i")) {
             ++i;
             VALUE_REQUIRED(i, argc, argv[i - 1]);
             if (handle_array_options(argv[i - 1], Adjusting,
