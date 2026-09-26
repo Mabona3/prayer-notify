@@ -22,10 +22,9 @@ unsigned long int sched_init(AppContext *app_context) {
 void *sched_thread(void *args) {
     AppContext *app_context = (AppContext *)args;
     struct tm times_dates[TIMEID_TimesCount];
-    double times[TIMEID_TimesCount];
     struct tm *date;
 
-    update_times(&app_context->sched.prayer_times, times_dates, times);
+    update_times(&app_context->sched.prayer_times, times_dates);
 
     sigset_t sigs;
     sigemptyset(&sigs);
@@ -87,7 +86,7 @@ void *sched_thread(void *args) {
                 app_context->sched.state = EXIT_STATE;
                 break;
             }
-            update_times(&app_context->sched.prayer_times, times_dates, times);
+            update_times(&app_context->sched.prayer_times, times_dates);
             app_context->sched.state = RUNNING_STATE;
         } else if (app_context->sched.state == EXIT_STATE) {
             break;
@@ -96,7 +95,7 @@ void *sched_thread(void *args) {
             time_add_day(date);
 
             app_context->sched.prayer_times.time = mktime(date);
-            update_times(&app_context->sched.prayer_times, times_dates, times);
+            update_times(&app_context->sched.prayer_times, times_dates);
         }
     }
 

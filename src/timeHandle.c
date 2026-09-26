@@ -2,10 +2,13 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
-void update_times(PrayerTimes *prayerTimes, struct tm *times_dates,
-                  double *times) {
+#include "prayerTimes.h"
+
+void update_times(PrayerTimes *prayerTimes, struct tm *times_dates) {
+    double times[TIMEID_TimesCount];
     get_prayer_times_time(
         prayerTimes, prayerTimes->latitude, prayerTimes->longitude,
         get_effective_timezone_time(prayerTimes->time), times);
@@ -28,7 +31,7 @@ void float_time_to_time24(double time, char *time24) {
     }
     int hours, minutes;
     get_float_time_parts(time, &hours, &minutes);
-    snprintf(time24, 6, "%2.2d:%2.2d", hours, minutes);
+    snprintf(time24, 6, "%02d:%02d", hours, minutes);
 }
 
 void float_time_to_time12(double time, bool no_suffix, char *time12) {
@@ -47,7 +50,7 @@ void float_time_to_time12(double time, bool no_suffix, char *time12) {
 
     const char *suffix = hours >= 12 ? "PM" : "AM";
     hours = (hours + 12 - 1) % 12 + 1;
-    snprintf(time12, 9, "%2.2d:%2.2d %s", hours, minutes,
+    snprintf(time12, 9, "%02d:%02d %s", hours, minutes,
              no_suffix ? suffix : "");
 }
 
@@ -83,6 +86,15 @@ inline void time_sub_day(struct tm *date) {
     date->tm_hour = 0;
     date->tm_min = 0;
     date->tm_sec = 0;
+}
+
+inline void set_date_preserve_time(struct tm *time, struct tm *date) {
+    int min = time->tm_min;
+    int hour = time->tm_hour;
+    memcpy(time, date, sizeof(struct tm));
+    time->tm_sec = 0;
+    time->tm_min = min;
+    time->tm_hour = hour;
 }
 
 inline Time convert_time_hms(int time) {

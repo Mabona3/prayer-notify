@@ -301,10 +301,8 @@ void print_debug_help(PrayerTimes *prayerTimes) {
     }
     printf(
         "Prayer Notification App\nDate: %02d/%02d/%04d\nTime: "
-        "%02d:%02d:%02d\nconfig_file: "
-        "%s\nLocation: (%lf, "
-        "%lf)\nCalculation Method: %s\nJuristic Method: %s\nAdjustment "
-        "Method: %s\n",
+        "%02d:%02d:%02d\nconfig_file: %s\nLocation: (%lf, %lf)\nCalculation "
+        "Method: %s\nJuristic Method: %s\nAdjustment Method: %s\n",
         t->tm_mday, t->tm_mon + 1, t->tm_year + 1900, t->tm_hour, t->tm_min,
         t->tm_sec, config_file, prayerTimes->latitude, prayerTimes->longitude,
         Calculation[prayerTimes->calc_method],
@@ -315,23 +313,18 @@ void print_debug_help(PrayerTimes *prayerTimes) {
 
 void print_next_prayer(PrayerTimes *prayerTimes) {
     struct tm times_dates[TIMEID_TimesCount];
-    double times[TIMEID_TimesCount];
     struct tm *date;
-    update_times(prayerTimes, times_dates, times);
+    update_times(prayerTimes, times_dates);
 
     date = localtime(&prayerTimes->time);
 
     for (TimeID timeid = 0; timeid < TIMEID_TimesCount; timeid++) {
-        times_dates[timeid] = *date;
-        times_dates[timeid].tm_sec = 0;
-        get_float_time_parts(times[timeid], &times_dates[timeid].tm_hour,
-                             &times_dates[timeid].tm_min);
+        set_date_preserve_time(&times_dates[timeid], date);
         if (mktime(&times_dates[timeid]) > prayerTimes->time) {
             Time diff = convert_time_hms(mktime(&times_dates[timeid]) -
                                          prayerTimes->time);
             printf(
-                "Upcoming Notification:\nNext Prayer: %s: %2.2d:%2.2d\nTime "
-                "Remaining: %2.2d:%2.2d:%2.2d\n",
+                "Next Prayer (%s): %02d:%02d\nTime Remaining: %02d:%02d:%02d\n",
                 TimeName[timeid], times_dates[timeid].tm_hour,
                 times_dates[timeid].tm_min, diff.hours, diff.minutes,
                 diff.seconds);
@@ -341,62 +334,49 @@ void print_next_prayer(PrayerTimes *prayerTimes) {
 
     time_add_day(date);
 
-    PrayerTimes temp = *prayerTimes;
-    temp.time = mktime(date);
-    get_prayer_times_time(&temp, temp.latitude, temp.longitude, temp.timezone,
-                          times);
+    PrayerTimes *temp = prayerTimes;
+    temp->time = mktime(date);
+    update_times(temp, times_dates);
 
-    times_dates[TIMEID_Fajr] = *date;
-    times_dates[TIMEID_Fajr].tm_sec = 0;
-    get_float_time_parts(times[TIMEID_Fajr], &times_dates[TIMEID_Fajr].tm_hour,
-                         &times_dates[TIMEID_Fajr].tm_min);
+    set_date_preserve_time(&times_dates[TIMEID_Fajr], date);
+
     Time diff =
         convert_time_hms(mktime(&times_dates[TIMEID_Fajr]) - time(NULL));
-    printf(
-        "Upcoming Notification:\nNext Prayer: %s: %2.2d:%2.2d\nTime "
-        "Remaining: %2.2d:%2.2d:%2.2d\n",
-        TimeName[TIMEID_Fajr], times_dates[TIMEID_Fajr].tm_hour,
-        times_dates[TIMEID_Fajr].tm_min, diff.hours, diff.minutes,
-        diff.seconds);
+    printf("Next Prayer (%s): %02d:%02d\nTime Remaining: %02d:%02d:%02d\n",
+           TimeName[TIMEID_Fajr], times_dates[TIMEID_Fajr].tm_hour,
+           times_dates[TIMEID_Fajr].tm_min, diff.hours, diff.minutes,
+           diff.seconds);
 }
 
 void print_all_prayers(PrayerTimes *prayerTimes) {
-    double times[TIMEID_TimesCount];
     struct tm times_dates[TIMEID_TimesCount];
 
-    update_times(prayerTimes, times_dates, times);
+    update_times(prayerTimes, times_dates);
 
     struct tm *date = localtime(&prayerTimes->time);
     for (TimeID timeid = 0; timeid < TIMEID_TimesCount; ++timeid) {
-        times_dates[timeid] = *date;
-        times_dates[timeid].tm_sec = 0;
-        get_float_time_parts(times[timeid], &times_dates[timeid].tm_hour,
-                             &times_dates[timeid].tm_min);
-        printf("Prayer %s: %2.2d:%2.2d\n", TimeName[timeid],
+        set_date_preserve_time(&times_dates[timeid], date);
+        printf("Prayer %s: %02d:%02d\n", TimeName[timeid],
                times_dates[timeid].tm_hour, times_dates[timeid].tm_min);
     }
 }
 
 void print_previous_prayer(PrayerTimes *prayerTimes) {
     struct tm times_dates[TIMEID_TimesCount];
-    double times[TIMEID_TimesCount];
     struct tm *date;
 
-    update_times(prayerTimes, times_dates, times);
+    update_times(prayerTimes, times_dates);
 
     date = localtime(&prayerTimes->time);
 
     for (TimeID timeid = TIMEID_TimesCount - 1; timeid > 0; timeid--) {
-        times_dates[timeid] = *date;
-        times_dates[timeid].tm_sec = 0;
-        get_float_time_parts(times[timeid], &times_dates[timeid].tm_hour,
-                             &times_dates[timeid].tm_min);
+        set_date_preserve_time(&times_dates[timeid], date);
         if (mktime(&times_dates[timeid]) < prayerTimes->time) {
             Time diff = convert_time_hms(prayerTimes->time -
                                          mktime(&times_dates[timeid]));
             printf(
-                "Previous Prayer: %s: %2.2d:%2.2d\nTime "
-                "Elapsed: %2.2d:%2.2d:%2.2d\n",
+                "Previous Prayer (%s): %02d:%02d\nTime Elapsed: "
+                "%02d:%02d:%02d\n",
                 TimeName[timeid], times_dates[timeid].tm_hour,
                 times_dates[timeid].tm_min, diff.hours, diff.minutes,
                 diff.seconds);
@@ -408,17 +388,13 @@ void print_previous_prayer(PrayerTimes *prayerTimes) {
     PrayerTimes temp = *prayerTimes;
     temp.time = mktime(date);
 
-    update_times(&temp, times_dates, times);
+    update_times(&temp, times_dates);
 
-    times_dates[TIMEID_Isha] = *date;
-    get_float_time_parts(times[TIMEID_Isha], &times_dates[TIMEID_Isha].tm_hour,
-                         &times_dates[TIMEID_Isha].tm_min);
+    set_date_preserve_time(&times_dates[TIMEID_Isha], date);
     Time diff =
         convert_time_hms(time(NULL) - mktime(&times_dates[TIMEID_Isha]));
-    printf(
-        "Previous Prayer: %s: %2.2d:%2.2d\nTime "
-        "Elapsed: %2.2d:%2.2d:%2.2d\n",
-        TimeName[TIMEID_Isha], times_dates[TIMEID_Isha].tm_hour,
-        times_dates[TIMEID_Isha].tm_min, diff.hours, diff.minutes,
-        diff.seconds);
+    printf("Previous Prayer: %s: %02d:%02d\nTime Elapsed: %02d:%02d:%02d\n",
+           TimeName[TIMEID_Isha], times_dates[TIMEID_Isha].tm_hour,
+           times_dates[TIMEID_Isha].tm_min, diff.hours, diff.minutes,
+           diff.seconds);
 }

@@ -43,7 +43,8 @@ void time_sub_day(struct tm *date);
 /* convert time_t into hours, minutes and seconds */
 Time convert_time_hms(int time);
 
-void update_times(PrayerTimes *prayerTimes, struct tm *times_dates,
-                  double *times);
+void update_times(PrayerTimes *prayerTimes, struct tm *times_dates);
+
+void set_date_preserve_time(struct tm *time, struct tm *date);
 
 #endif  // TIMEHANDLE_H
