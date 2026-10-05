@@ -56,9 +56,8 @@ void close_notify(NotificationContext *notif)
     g_main_loop_quit(notif->main_loop);
 }
 
-unsigned long int init_notify(AppContext *app_context)
+int init_notify(AppContext *app_context)
 {
-    pthread_t notify_thread_id;
     if (!notify_init(NOTIFICATION_NAME)) {
         log_msg(LOGLEVEL_ERROR, "failed to init libnotify");
         return -1;
@@ -86,7 +85,8 @@ unsigned long int init_notify(AppContext *app_context)
         return -1;
     }
 
-    if (pthread_create(&notify_thread_id, NULL, notify_thread, app_context)) {
+    if (pthread_create(&app_context->notif.thread_id, NULL, notify_thread,
+                       app_context)) {
         log_msg(LOGLEVEL_ERROR, "notify thread creation failed");
         return -1;
     }
@@ -94,7 +94,7 @@ unsigned long int init_notify(AppContext *app_context)
     g_signal_connect(app_context->notif.notify, "closed",
                      G_CALLBACK(on_notification_closed), NULL);
 
-    return notify_thread_id;
+    return 0;
 }
 
 void send_notification(NotificationContext *notif)

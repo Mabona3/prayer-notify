@@ -57,8 +57,15 @@ int app_init(AppContext *app_context, int argc, char *argv[])
         return -1;
     }
 
-    app_context->notif.thread_id = init_notify(app_context);
-    app_context->sched.thread_id = sched_init(app_context);
+    init_notify(app_context);
+    if (app_context->notif.thread_id != 0) {
+        return -1;
+    }
+
+    sched_init(app_context);
+    if (app_context->sched.thread_id != 0) {
+        return -1;
+    }
 
     return 0;
 }

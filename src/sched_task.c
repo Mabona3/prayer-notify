@@ -9,15 +9,14 @@
 
 void *sched_thread(void *args);
 
-unsigned long int sched_init(AppContext *app_context)
+int sched_init(AppContext *app_context)
 {
-    pthread_t thread_id;
-
-    if (pthread_create(&thread_id, NULL, sched_thread, (void *)app_context)) {
+    if (pthread_create(&app_context->sched.thread_id, NULL, sched_thread,
+                       app_context)) {
         log_msg(LOGLEVEL_ERROR, "sched thread couldn't be created");
-        exit(1);
+        return 1;
     }
-    return thread_id;
+    return 0;
 }
 
 void *sched_thread(void *args)

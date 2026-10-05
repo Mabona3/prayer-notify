@@ -3,6 +3,6 @@
 
 #include "state_def.h"
 
-unsigned long int sched_init(AppContext *app_context);
+int sched_init(AppContext *app_context);
 
 #endif  // !SCHED_TASK_H

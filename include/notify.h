@@ -10,7 +10,7 @@
 #define NOTIFICATION_NAME "Prayer Times"
 
 // initialize the gmain context
-unsigned long int init_notify(AppContext *app_context);
+int init_notify(AppContext *app_context);
 
 void send_notification(NotificationContext *notif);
 
