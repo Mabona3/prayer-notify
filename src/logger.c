@@ -30,13 +30,15 @@ void _log_msg(LogLevel level, const char *file, int line, const char *fmt, ...)
 
 inline void set_log_level(LogLevel level)
 {
-    if ((log_level == LOGLEVEL_INFO || level == LOGLEVEL_INFO) &&
+    if ((log_level <= LOGLEVEL_INFO || level <= LOGLEVEL_INFO) &&
         log_level != level) {
         fprintf(stdout, "[INFO] Setting log level into %s\n", LogName[level]);
-
-        log_level = level;
     } else if (level > LOGLEVEL_ERROR) {
         log_msg(LOGLEVEL_ERROR, "Unknown log level '%d'\n", level);
         log_level = LOGLEVEL_ERROR;
+
+        return;
     }
+
+    log_level = level;
 }
