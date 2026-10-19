@@ -8,26 +8,40 @@ jobs:
   build-linux-gcc:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -qq libnotify cjson
+          sudo apt-get install -y libnotify-dev libcjson-dev
       - name: build prayer-notify
         run: |
-          ./build.sh
+          make
         env:
           CC: gcc
   build-linux-clang:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -qq libnotify cjson
+          sudo apt-get install -y libnotify-dev libcjson-dev
       - name: build prayer-notify
         run: |
           make
+        env:
+          CC: clang
+  check-linux-format:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+      - name: build prayer-notify
+
+        run: |
+          find -name '*.c' -exec clang-format --dry-run --Werror "{}" \;
         env:
           CC: clang
