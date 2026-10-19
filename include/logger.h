@@ -11,8 +11,8 @@ typedef enum {
 #define log_msg(level, ...) _log_msg(level, __FILE__, __LINE__, __VA_ARGS__)
 
 void _log_msg(LogLevel level, const char *file, int line, const char *fmt, ...)
-    __attribute__((format(printf, 4, 5)));
+    __attribute__((format(printf, 4, 5))) __attribute__((nonnull(4)));
 void set_log_level(LogLevel level);
-void init_logger();
+void init_logger(void);
 
 #endif  // !LOGGER_H

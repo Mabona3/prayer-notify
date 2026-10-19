@@ -129,6 +129,12 @@ int create_parent_dir(const char *config_file)
     strcpy(config_dup, config_file);
 
     char *config_dir = dirname(config_dup);
+    if (config_dir == NULL) {
+        log_msg(LOGLEVEL_ERROR, "dirname failed on %s", config_dup);
+        arena_scratch_pop(&scratch);
+        return 1;
+    }
+
     struct stat st;
     if (stat(config_dir, &st) == -1) {
         log_msg(LOGLEVEL_DEBUG, "directory '%s' not found creating",

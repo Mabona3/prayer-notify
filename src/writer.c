@@ -11,7 +11,7 @@
 #include "logger.h"
 #include "prayerTimes.h"
 
-void close_current_writer()
+void close_current_writer(void)
 {
     char *temp_file = NULL;
     ScratchArena scratch;
@@ -94,7 +94,7 @@ int write_current(struct tm *times, int current)
     return EXIT_SUCCESS;
 }
 
-bool check_temp_file()
+bool check_temp_file(void)
 {
     char *temp_file = NULL;
     ScratchArena scratch;

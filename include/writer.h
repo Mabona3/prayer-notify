@@ -6,12 +6,12 @@
 
 // check for the temp file existence no more than one instance to run and
 // work within the file and I don't want to make a complex way to handle this
-bool check_temp_file();
+bool check_temp_file(void);
 
 // Write the json file into the /tmp/prayer-notify.json
 int write_current(struct tm *times, int current);
 
 // delete and remove the cache from the temp file
-void close_current_writer();
+void close_current_writer(void);
 
 #endif  // !JSONWRITER_H

@@ -21,12 +21,12 @@ typedef struct {
 /*
  * mmap the chunk and save it in an internal struct
  */
-int arena_create();
+int arena_create(void);
 
 /*
  * munmap the chunk and clean the internal struct
  */
-void arena_destroy();
+void arena_destroy(void);
 
 void *arena_push(ScratchArena *scratch, uint64_t size);
 

@@ -10,9 +10,10 @@ const char *LogName[] = {[LOGLEVEL_DEBUG] = "DEBUG",
                          [LOGLEVEL_WARN] = "WARN",
                          [LOGLEVEL_ERROR] = "ERROR"};
 
-void init_logger() { log_level = LOGLEVEL_ERROR; }
+void init_logger(void) { log_level = LOGLEVEL_ERROR; }
 
-void _log_msg(LogLevel level, const char *file, int line, const char *fmt, ...)
+void _log_msg(LogLevel level, const char *file,
+                                          int line, const char *fmt, ...)
 {
     if (log_level > level) {
         return;

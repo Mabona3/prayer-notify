@@ -14,7 +14,7 @@ struct Arena {
 
 static Arena arena;
 
-int arena_create()
+int arena_create(void)
 {
     arena.data = mmap(NULL, MB(512), PROT_READ | PROT_WRITE,
                       MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
@@ -26,7 +26,7 @@ int arena_create()
     return EXIT_SUCCESS;
 }
 
-void arena_destroy()
+void arena_destroy(void)
 {
     if (munmap(arena.data, MB(512)))
         log_msg(LOGLEVEL_ERROR, "munmap() failed\n");
