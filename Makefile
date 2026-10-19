@@ -1,6 +1,6 @@
 -include config.mk
 
-all: CFLAGS+=-g -DDebug
+all: CFLAGS+=-g -DDebug -fsanitize=address,undefined -fno-omit-frame-pointer
 all: $(MAIN)
 
 release: CFLAGS+=-s -O2
