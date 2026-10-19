@@ -41,7 +41,7 @@ void *sched_thread(void *args)
             if (current_time == TIMEID_Sunset) continue;
             time_t dtime = mktime(&times_dates[current_time]) -
                            app_context->sched.prayer_times.time;
-            log_msg(LOGLEVEL_INFO, "%s: %ld seconds", TimeName[current_time],
+            log_msg(LOGLEVEL_DEBUG, "%s: %ld seconds", TimeName[current_time],
                     dtime);
             if (app_context->sched.state == RUNNING_STATE && dtime > 0) {
                 log_msg(LOGLEVEL_DEBUG, "Logging current time %s, %ld",

@@ -57,13 +57,13 @@ int app_init(AppContext *app_context, int argc, char *argv[])
         return -1;
     }
 
-    init_notify(app_context);
-    if (app_context->notif.thread_id != 0) {
+    int ret = init_notify(app_context);
+    if (ret < 0) {
         return -1;
     }
 
-    sched_init(app_context);
-    if (app_context->sched.thread_id != 0) {
+    ret = sched_init(app_context);
+    if (ret < 0) {
         return -1;
     }
 

@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
+#include "glib-object.h"
 #include "logger.h"
 
 extern TimeID current_time;
@@ -108,9 +109,11 @@ void send_notification(NotificationContext *notif)
 
 void deinit_notify(AppContext *app_context)
 {
-    log_msg(LOGLEVEL_DEBUG, "Destroying Notification");
-    g_object_unref(app_context->notif.notify);
+    log_msg(LOGLEVEL_DEBUG, "destroying notification objects");
     notify_uninit();
+    g_clear_object(&app_context->notif.notify);
+    g_main_context_unref(app_context->notif.main_context);
+    g_main_loop_unref(app_context->notif.main_loop);
 }
 
 void *notify_thread(void *args)
