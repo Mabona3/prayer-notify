@@ -12,7 +12,7 @@
 // initialize the gmain context
 int init_notify(AppContext *app_context);
 
-void send_notification(NotificationContext *notif);
+void send_notification(AppContext *app_context);
 
 // deinitialize the gmain context
 void deinit_notify(AppContext *app_context);

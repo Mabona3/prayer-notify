@@ -7,7 +7,7 @@ BUILD_DIR=build
 
 VERSION:=$(shell git describe --tags --always --dirty 2>/dev/null || echo "1.0.0")
 
-PKG_DEPS=libnotify
+PKG_DEPS=libnotify miniaudio
 PKG_FLAGS:=$(shell pkg-config --cflags $(PKG_DEPS))
 PKG_LIBS:=$(shell pkg-config --libs $(PKG_DEPS))
 

@@ -3,6 +3,7 @@
 #include <signal.h>
 
 #include "arena.h"
+#include "athan.h"
 #include "config.h"
 #include "jsonReader.h"
 #include "logger.h"
@@ -57,6 +58,11 @@ int app_init(AppContext *app_context, int argc, char *argv[])
         return -1;
     }
 
+    if (init_athan(&app_context->athan)) {
+        log_msg(LOGLEVEL_ERROR,
+                "Couldn't initialize athan continuing without sound...");
+    }
+
     int ret = init_notify(app_context);
     if (ret < 0) {
         return -1;
@@ -78,6 +84,7 @@ void app_run(AppContext *app_context)
 
 void app_quit(AppContext *app_context)
 {
+    uninit_athan(&app_context->athan);
     close_current_writer();
     deinit_notify(app_context);
     arena_destroy();

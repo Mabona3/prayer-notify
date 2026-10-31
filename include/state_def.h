@@ -5,6 +5,7 @@
 #include <libnotify/notification.h>
 
 #include "arena.h"
+#include "athan.h"
 #include "prayerTimes.h"
 
 typedef struct {
@@ -32,6 +33,7 @@ typedef struct {
     NotificationContext notif;
     SchedContext sched;
     ScratchArena scratch_arena;
+    Athan_ctx athan;
 } AppContext;
 
 #endif  // STATE_DEF_H

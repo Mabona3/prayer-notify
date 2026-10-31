@@ -56,7 +56,7 @@ void *sched_thread(void *args)
                     if (errno == EAGAIN) {
                         log_msg(LOGLEVEL_DEBUG, "TIMEDOUT from the sleep");
                         app_context->notif.current_time = current_time;
-                        send_notification(&app_context->notif);
+                        send_notification(app_context);
                     } else {
                         app_context->sched.state = EXIT_STATE;
                         log_msg(LOGLEVEL_ERROR, "sigtimedwait error");

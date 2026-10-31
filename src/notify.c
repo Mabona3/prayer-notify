@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
-#include "glib-object.h"
+#include "athan.h"
 #include "logger.h"
 
 extern TimeID current_time;
@@ -81,6 +81,12 @@ int init_notify(AppContext *app_context)
 
     app_context->notif.notify =
         notify_notification_new(NOTIFICATION_NAME, NULL, NULL);
+
+    // notify_notification_add_action(app_context->notif.notify,
+    //                                "mute", "mute",
+    //                                stop_athan,
+    //                                &app_context->athan, NULL);
+
     if (!app_context->notif.notify) {
         log_msg(LOGLEVEL_ERROR, "notify notification creation failed");
         return -1;
@@ -98,13 +104,16 @@ int init_notify(AppContext *app_context)
     return 0;
 }
 
-void send_notification(NotificationContext *notif)
+void send_notification(AppContext *app_context)
 {
     log_msg(LOGLEVEL_DEBUG, "Sending notification for %s",
-            TimeName[notif->current_time]);
+            TimeName[app_context->notif.current_time]);
 
-    while (!g_main_loop_is_running(notif->main_loop));
-    g_main_context_invoke(notif->main_context, notification_update, notif);
+    while (!g_main_loop_is_running(app_context->notif.main_loop));
+    g_main_context_invoke(app_context->notif.main_context, notification_update,
+                          &app_context->notif);
+    g_main_context_invoke(app_context->notif.main_context,
+                          (GSourceFunc)start_athan, &app_context->athan);
 }
 
 void deinit_notify(AppContext *app_context)
