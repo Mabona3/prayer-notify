@@ -4,6 +4,7 @@
 
 #include "arena.h"
 #include "config.h"
+#include "logger.h"
 
 static void sound_end_callback(void *pUserData, ma_sound *pSound)
 {
@@ -20,6 +21,7 @@ int init_athan(Athan_ctx *athan)
 
     result = ma_engine_init(NULL, &athan->engine);
     if (result != MA_SUCCESS) {
+        log_msg(LOGLEVEL_ERROR, "failed to initialize engine");
         return -1;
     }
 
@@ -27,6 +29,7 @@ int init_athan(Athan_ctx *athan)
 
     arena_scratch_push(&scratch);
     if (get_audio_file(&scratch, &output) > 0) {
+        log_msg(LOGLEVEL_ERROR, "failed to get audio file");
         ma_engine_uninit(&athan->engine);
         arena_scratch_pop(&scratch);
         return -1;
@@ -38,6 +41,7 @@ int init_athan(Athan_ctx *athan)
 
     if (result != MA_SUCCESS) {
         arena_scratch_pop(&scratch);
+        log_msg(LOGLEVEL_ERROR, "failed to get read audio file");
         return -1;
     }
 
@@ -51,10 +55,12 @@ int init_athan(Athan_ctx *athan)
 int start_athan(Athan_ctx *athan)
 {
     if (athan->status == ATHAN_UNINIT) {
+        log_msg(LOGLEVEL_DEBUG, "uninit athan start aborting");
         return -1;
     }
     ma_result result = ma_sound_start(&athan->sound);
     if (result != MA_SUCCESS) {
+        log_msg(LOGLEVEL_ERROR, "failed to start athan");
         return -1;
     }
     athan->status = ATHAN_RUNNING;
@@ -64,15 +70,18 @@ int start_athan(Athan_ctx *athan)
 int stop_athan(Athan_ctx *athan)
 {
     if (athan->status == ATHAN_UNINIT) {
+        log_msg(LOGLEVEL_DEBUG, "uninit athan in stop aborting");
         return -1;
     }
 
     ma_result result = ma_sound_stop(&athan->sound);
     if (result != MA_SUCCESS) {
+        log_msg(LOGLEVEL_ERROR, "failed to stop athan");
         return -1;
     }
 
     athan->status = ATHAN_STOPPED;
+    ma_sound_seek_to_pcm_frame(&athan->sound, 0);
     return 0;
 }
 

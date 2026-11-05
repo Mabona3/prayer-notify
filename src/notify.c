@@ -14,9 +14,9 @@ extern TimeID current_time;
 void *notify_thread(void *args);
 
 static void on_notification_closed(NotifyNotification *notification,
-                                   __attribute__((unused)) char *action,
-                                   __attribute__((unused)) gpointer user_data)
+                                   gpointer user_data)
 {
+    Athan_ctx *athan = (Athan_ctx *)user_data;
     gint ret = notify_notification_get_closed_reason(notification);
     char *reason;
     switch ((NotifyClosedReason)ret) {
@@ -38,6 +38,7 @@ static void on_notification_closed(NotifyNotification *notification,
             break;
     }
     log_msg(LOGLEVEL_DEBUG, "Notification closed with reason code: %s", reason);
+    stop_athan(athan);
 }
 
 static gboolean notification_update(gpointer data)
@@ -99,7 +100,8 @@ int init_notify(AppContext *app_context)
     }
 
     g_signal_connect(app_context->notif.notify, "closed",
-                     G_CALLBACK(on_notification_closed), NULL);
+                     G_CALLBACK(on_notification_closed),
+                     ((void *)&app_context->athan));
 
     return 0;
 }
