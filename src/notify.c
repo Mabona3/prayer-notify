@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "athan.h"
+#include "glib-object.h"
 #include "logger.h"
 
 extern TimeID current_time;
@@ -14,9 +15,8 @@ extern TimeID current_time;
 void *notify_thread(void *args);
 
 static void on_notification_closed(NotifyNotification *notification,
-                                   gpointer user_data)
+                                   __attribute__((unused)) gpointer user_data)
 {
-    Athan_ctx *athan = (Athan_ctx *)user_data;
     gint ret = notify_notification_get_closed_reason(notification);
     char *reason;
     switch ((NotifyClosedReason)ret) {
@@ -38,6 +38,14 @@ static void on_notification_closed(NotifyNotification *notification,
             break;
     }
     log_msg(LOGLEVEL_DEBUG, "Notification closed with reason code: %s", reason);
+}
+
+static void on_notification_mute(NotifyNotification *notification,
+                                 __attribute__((unused)) char *action,
+                                 gpointer user_data)
+{
+    notify_notification_show(notification, NULL);
+    Athan_ctx *athan = (Athan_ctx *)user_data;
     stop_athan(athan);
 }
 
@@ -83,10 +91,9 @@ int init_notify(AppContext *app_context)
     app_context->notif.notify =
         notify_notification_new(NOTIFICATION_NAME, NULL, NULL);
 
-    // notify_notification_add_action(app_context->notif.notify,
-    //                                "mute", "mute",
-    //                                stop_athan,
-    //                                &app_context->athan, NULL);
+    notify_notification_add_action(app_context->notif.notify, "mute", "mute",
+                                   on_notification_mute, &app_context->athan,
+                                   NULL);
 
     if (!app_context->notif.notify) {
         log_msg(LOGLEVEL_ERROR, "notify notification creation failed");
