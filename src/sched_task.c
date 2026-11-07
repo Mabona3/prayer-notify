@@ -47,7 +47,8 @@ void *sched_thread(void *args)
                 log_msg(LOGLEVEL_DEBUG, "Logging current time %s, %ld",
                         TimeName[current_time], dtime);
 
-                write_current(times_dates, current_time);
+                write_current(app_context->sched.temp_file, times_dates,
+                              current_time);
 
                 siginfo_t info;
                 int ret = sigtimedwait(&sigs, &info,

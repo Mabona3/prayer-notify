@@ -46,7 +46,8 @@ int app_init(AppContext *app_context, int argc, char *argv[])
         return parse_status;
     }
 
-    if (check_temp_file()) {
+    app_context->sched.temp_file = check_temp_file();
+    if (app_context->sched.temp_file == NULL) {
         log_msg(LOGLEVEL_ERROR, "Another instance is running\n");
         return 1;
     }
@@ -85,7 +86,7 @@ void app_run(AppContext *app_context)
 void app_quit(AppContext *app_context)
 {
     uninit_athan(&app_context->athan);
-    close_current_writer();
+    close_current_writer(app_context->sched.temp_file);
     deinit_notify(app_context);
     arena_destroy();
     arena_scratch_pop(&app_context->scratch_arena);
