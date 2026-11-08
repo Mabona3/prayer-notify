@@ -58,6 +58,11 @@ int start_athan(Athan_ctx *athan)
         log_msg(LOGLEVEL_DEBUG, "uninit athan start aborting");
         return -1;
     }
+
+    if (reset_athan(athan) != 0) {
+        return -1;
+    }
+
     ma_result result = ma_sound_start(&athan->sound);
     if (result != MA_SUCCESS) {
         log_msg(LOGLEVEL_ERROR, "failed to start athan");
@@ -67,8 +72,27 @@ int start_athan(Athan_ctx *athan)
     return 0;
 }
 
+int toggle_athan(Athan_ctx *athan)
+{
+    if (athan->status == ATHAN_RUNNING) {
+        return stop_athan(athan);
+    } else if (athan->status == ATHAN_STOPPED) {
+        ma_result result = ma_sound_start(&athan->sound);
+        if (result != MA_SUCCESS) {
+            log_msg(LOGLEVEL_ERROR, "failed to start athan");
+            return -1;
+        }
+        athan->status = ATHAN_RUNNING;
+    }
+    return 0;
+}
+
 int stop_athan(Athan_ctx *athan)
 {
+    if (!ma_sound_is_playing(&athan->sound)) {
+        return 0;
+    }
+
     if (athan->status == ATHAN_UNINIT) {
         log_msg(LOGLEVEL_DEBUG, "uninit athan in stop aborting");
         return -1;
@@ -81,7 +105,17 @@ int stop_athan(Athan_ctx *athan)
     }
 
     athan->status = ATHAN_STOPPED;
-    ma_sound_seek_to_pcm_frame(&athan->sound, 0);
+    return 0;
+}
+
+int reset_athan(Athan_ctx *athan)
+{
+    ma_result result = ma_sound_seek_to_pcm_frame(&athan->sound, 0);
+    if (result != MA_SUCCESS) {
+        log_msg(LOGLEVEL_ERROR, "failed to reset athan");
+        return -1;
+    }
+
     return 0;
 }
 

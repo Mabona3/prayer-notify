@@ -8,6 +8,7 @@
 
 #include "athan.h"
 #include "glib-object.h"
+#include "glibconfig.h"
 #include "logger.h"
 
 extern TimeID current_time;
@@ -17,6 +18,7 @@ void *notify_thread(void *args);
 static void on_notification_closed(NotifyNotification *notification,
                                    __attribute__((unused)) gpointer user_data)
 {
+    Athan_ctx *athan = (Athan_ctx *)user_data;
     gint ret = notify_notification_get_closed_reason(notification);
     char *reason;
     switch ((NotifyClosedReason)ret) {
@@ -38,15 +40,19 @@ static void on_notification_closed(NotifyNotification *notification,
             break;
     }
     log_msg(LOGLEVEL_DEBUG, "Notification closed with reason code: %s", reason);
+    stop_athan(athan);
 }
 
-static void on_notification_mute(NotifyNotification *notification,
-                                 __attribute__((unused)) char *action,
-                                 gpointer user_data)
+static void on_notification_action(__attribute__((unused))
+                                   NotifyNotification *notification,
+                                   char *action, gpointer user_data)
 {
-    notify_notification_show(notification, NULL);
     Athan_ctx *athan = (Athan_ctx *)user_data;
-    stop_athan(athan);
+    if (strcmp(action, "toggle") == 0) {
+        toggle_athan(athan);
+    } else if (strcmp(action, "reset") == 0) {
+        reset_athan(athan);
+    }
 }
 
 static gboolean notification_update(gpointer data)
@@ -91,9 +97,16 @@ int init_notify(AppContext *app_context)
     app_context->notif.notify =
         notify_notification_new(NOTIFICATION_NAME, NULL, NULL);
 
-    notify_notification_add_action(app_context->notif.notify, "mute", "mute",
-                                   on_notification_mute, &app_context->athan,
+    notify_notification_add_action(app_context->notif.notify, "toggle",
+                                   "toggle", on_notification_action,
+                                   &app_context->athan, NULL);
+    notify_notification_add_action(app_context->notif.notify, "reset", "reset",
+                                   on_notification_action, &app_context->athan,
                                    NULL);
+    notify_notification_set_hint(app_context->notif.notify, "resident",
+                                 g_variant_new_boolean(TRUE));
+    notify_notification_set_timeout(app_context->notif.notify,
+                                    NOTIFY_EXPIRES_NEVER);
 
     if (!app_context->notif.notify) {
         log_msg(LOGLEVEL_ERROR, "notify notification creation failed");

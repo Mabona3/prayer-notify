@@ -51,7 +51,7 @@ void *sched_thread(void *args)
 
                 siginfo_t info;
                 int ret = sigtimedwait(&sigs, &info,
-                                       &(struct timespec){.tv_sec = 5});
+                                       &(struct timespec){.tv_sec = dtime});
                 if (ret < 0) {
                     if (errno == EAGAIN) {
                         log_msg(LOGLEVEL_DEBUG, "TIMEDOUT from the sleep");

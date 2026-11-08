@@ -22,6 +22,10 @@ int start_athan(Athan_ctx *athan);
 
 int stop_athan(Athan_ctx *athan);
 
+int toggle_athan(Athan_ctx *athan);
+
+int reset_athan(Athan_ctx *athan);
+
 void uninit_athan(Athan_ctx *athan);
 
 #endif  // ATHAN_H
