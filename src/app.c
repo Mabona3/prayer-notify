@@ -58,11 +58,6 @@ int app_init(AppContext *app_context, int argc, char *argv[])
         return -1;
     }
 
-    if (init_athan(&app_context->athan)) {
-        log_msg(LOGLEVEL_ERROR,
-                "Couldn't initialize athan continuing without sound...");
-    }
-
     int ret = init_notify(app_context);
     if (ret < 0) {
         return -1;
