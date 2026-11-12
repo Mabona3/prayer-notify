@@ -8,6 +8,7 @@ typedef enum {
     ATHAN_INIT,
     ATHAN_RUNNING,
     ATHAN_STOPPED,
+    ATHAN_MUTED,
 } Athan_Status;
 
 typedef struct {

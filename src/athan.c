@@ -17,6 +17,11 @@ int init_athan(Athan_ctx *athan)
     ScratchArena scratch;
     ma_result result = MA_SUCCESS;
 
+    if (athan->status != ATHAN_UNINIT) {
+        log_msg(LOGLEVEL_INFO, "Athan already initialized");
+        return 0;
+    }
+
     athan->status = ATHAN_UNINIT;
 
     result = ma_engine_init(NULL, &athan->engine);
@@ -55,8 +60,7 @@ int init_athan(Athan_ctx *athan)
 int start_athan(Athan_ctx *athan)
 {
     if (athan->status == ATHAN_UNINIT) {
-        log_msg(LOGLEVEL_DEBUG, "uninit athan start aborting");
-        return -1;
+        init_athan(athan);
     }
 
     if (reset_athan(athan) != 0) {
@@ -74,15 +78,26 @@ int start_athan(Athan_ctx *athan)
 
 int toggle_athan(Athan_ctx *athan)
 {
+    switch (athan->status) {
+        case ATHAN_UNINIT:
+            init_athan(athan);
+            __attribute__((fallthrough));
+        case ATHAN_INIT:
+        case ATHAN_STOPPED: {
+            ma_result result = ma_sound_start(&athan->sound);
+            if (result != MA_SUCCESS) {
+                log_msg(LOGLEVEL_ERROR, "failed to start athan");
+                return -1;
+            }
+            athan->status = ATHAN_RUNNING;
+        } break;
+        case ATHAN_RUNNING:
+            return stop_athan(athan);
+        case ATHAN_MUTED:
+            return 0;
+    }
     if (athan->status == ATHAN_RUNNING) {
-        return stop_athan(athan);
     } else if (athan->status == ATHAN_STOPPED) {
-        ma_result result = ma_sound_start(&athan->sound);
-        if (result != MA_SUCCESS) {
-            log_msg(LOGLEVEL_ERROR, "failed to start athan");
-            return -1;
-        }
-        athan->status = ATHAN_RUNNING;
     }
     return 0;
 }
