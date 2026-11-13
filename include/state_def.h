@@ -27,6 +27,7 @@ typedef struct {
     pthread_t thread_id;
     PrayerTimes prayer_times;
     AppState state;
+    int temp_fd;
 } SchedContext;
 
 typedef struct {
