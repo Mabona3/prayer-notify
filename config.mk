@@ -18,7 +18,7 @@ PKG_DEPS=libnotify
 PKG_FLAGS:=$(shell pkg-config --cflags $(PKG_DEPS))
 PKG_LIBS:=$(shell pkg-config --libs $(PKG_DEPS))
 
-INC_FLAGS=-Iinclude $(PKG_FLAGS)
+INC_FLAGS=-Iinclude $(PKG_FLAGS) -I$(DEPS_DIR)
 LIBS=-lm -lcjson $(PKG_LIBS)
 
 CFLAGS=-Wall -Wextra -Wpedantic -DAPP_VERSION=\"$(VERSION)\" -Wno-unused-variable $(PKG_FLAGS) -DDAEMON_SYSTEMD -std=c11
