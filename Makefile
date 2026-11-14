@@ -6,12 +6,22 @@ all: $(MAIN)
 release: CFLAGS+=-s -O2
 release: $(MAIN)
 
-$(MAIN): $(OBJ_FILES)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(INC_FLAGS)
+deps:
+	echo $(DEPS_OBJ)
+	echo $(DEPS_LINK)
+	echo $(DEPS_SRC)
+
+$(MAIN): $(OBJ_FILES) $(DEPS_OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(INC_FLAGS) $(DEPS_LIB) $(DEPS_LINK)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@ $(INC_FLAGS)
+
+$(DEPS_OBJ): 
+	echo $(dir $(patsubst %/,%,$(dir $@)))
+	echo $@
+	@$(MAKE) -C $(dir $(patsubst %/,%,$(dir $@)))
 
 run: $(MAIN)
 	@./$(MAIN)
