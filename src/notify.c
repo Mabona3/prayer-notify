@@ -15,31 +15,12 @@ extern TimeID current_time;
 
 void *notify_thread(void *args);
 
-static void on_notification_closed(NotifyNotification *notification,
+static void on_notification_closed(__attribute__((unused))
+                                   NotifyNotification *notification,
                                    __attribute__((unused)) gpointer user_data)
 {
     Athan_ctx *athan = (Athan_ctx *)user_data;
-    gint ret = notify_notification_get_closed_reason(notification);
-    char *reason;
-    switch ((NotifyClosedReason)ret) {
-        case NOTIFY_CLOSED_REASON_UNSET:
-            reason = "unset";
-            break;
-        case NOTIFY_CLOSED_REASON_EXPIRED:
-            reason = "expired";
-            break;
-        case NOTIFY_CLOSED_REASON_DISMISSED:
-            reason = "dismissed";
-            break;
-        case NOTIFY_CLOSED_REASON_API_REQUEST:
-            reason = "api request";
-            break;
-        case NOTIFY_CLOSED_REASON_UNDEFINED:
-        default:
-            reason = "undefined";
-            break;
-    }
-    log_msg(LOGLEVEL_DEBUG, "Notification closed with reason code: %s", reason);
+    log_msg(LOGLEVEL_DEBUG, "Notification closed");
     stop_athan(athan);
 }
 

@@ -17,7 +17,7 @@ static Arena arena;
 int arena_create(void)
 {
     arena.data = mmap(NULL, MB(512), PROT_READ | PROT_WRITE,
-                      MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+                      MAP_PRIVATE, 0, 0);
     if (arena.data == NULL) {
         log_msg(LOGLEVEL_ERROR, "mmap() failed\n");
         return EXIT_FAILURE;
